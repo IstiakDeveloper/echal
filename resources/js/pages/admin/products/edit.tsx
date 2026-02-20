@@ -1,0 +1,317 @@
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, Upload, X } from 'lucide-react';
+import { useState, useRef } from 'react';
+import AdminLayout from '@/layouts/admin-layout';
+import { Button } from '@/components/ui/button';
+
+type Product = {
+    id: number;
+    category_id: number;
+    name: string;
+    slug: string;
+    description: string;
+    price: string;
+    image: string | null;
+    images: string[] | null;
+    stock: number | null;
+    is_active: boolean;
+};
+
+type ProductEditProps = {
+    product: Product;
+    categories: Array<{ id: number; name: string }>;
+};
+
+export default function ProductEdit({ product, categories }: ProductEditProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const existingImages = product.images || [];
+    const [previewImages, setPreviewImages] = useState<string[]>([]);
+    const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+    const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
+
+    const form = useForm({
+        category_id: product.category_id.toString(),
+        name: product.name,
+        slug: product.slug,
+        description: product.description || '',
+        price: product.price,
+        image: product.image || '',
+        images: [] as File[],
+        images_to_delete: [] as string[],
+        stock: product.stock?.toString() || '',
+        is_active: product.is_active,
+    });
+
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        const newFiles = [...uploadedFiles, ...files];
+        setUploadedFiles(newFiles);
+        form.setData('images', newFiles);
+
+        // Create preview URLs
+        const newPreviews = files.map((file) => URL.createObjectURL(file));
+        setPreviewImages([...previewImages, ...newPreviews]);
+    };
+
+    const removeExistingImage = (imageUrl: string) => {
+        const newImagesToDelete = [...imagesToDelete, imageUrl];
+        setImagesToDelete(newImagesToDelete);
+        form.setData('images_to_delete', newImagesToDelete);
+    };
+
+    const removeNewImage = (index: number) => {
+        const newFiles = uploadedFiles.filter((_, i) => i !== index);
+        const newPreviews = previewImages.filter((_, i) => i !== index);
+        
+        setUploadedFiles(newFiles);
+        setPreviewImages(newPreviews);
+        form.setData('images', newFiles);
+        
+        // Revoke the preview URL to free memory
+        URL.revokeObjectURL(previewImages[index]);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        form.transform((data) => ({ ...data, _method: 'PUT' }));
+        form.post(`/admin/products/${product.id}`, {
+            forceFormData: true,
+        });
+    };
+
+    const displayImages = existingImages.filter(img => !imagesToDelete.includes(img));
+
+    return (
+        <>
+            <Head title={`Edit ${product.name} — Admin`} />
+            <AdminLayout>
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <Link href="/admin/products">
+                            <Button variant="ghost" size="sm">
+                                <ArrowLeft className="mr-2 size-4" />
+                                Back
+                            </Button>
+                        </Link>
+                        <div>
+                            <h1 className="text-3xl font-bold">Edit Product</h1>
+                            <p className="mt-1 text-muted-foreground">{product.name}</p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid gap-6 lg:grid-cols-2">
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium">Category *</label>
+                                    <select
+                                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                        value={form.data.category_id}
+                                        onChange={(e) => form.setData('category_id', e.target.value)}
+                                        required
+                                    >
+                                        {categories.map((cat) => (
+                                            <option key={cat.id} value={cat.id}>
+                                                {cat.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {form.errors.category_id && (
+                                        <p className="mt-1 text-xs text-destructive">{form.errors.category_id}</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium">Product Name *</label>
+                                    <input
+                                        type="text"
+                                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                        value={form.data.name}
+                                        onChange={(e) => form.setData('name', e.target.value)}
+                                        required
+                                    />
+                                    {form.errors.name && (
+                                        <p className="mt-1 text-xs text-destructive">{form.errors.name}</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium">Slug</label>
+                                    <input
+                                        type="text"
+                                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                        value={form.data.slug}
+                                        onChange={(e) => form.setData('slug', e.target.value)}
+                                    />
+                                    {form.errors.slug && (
+                                        <p className="mt-1 text-xs text-destructive">{form.errors.slug}</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium">Price (৳) *</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                        value={form.data.price}
+                                        onChange={(e) => form.setData('price', e.target.value)}
+                                        required
+                                    />
+                                    {form.errors.price && (
+                                        <p className="mt-1 text-xs text-destructive">{form.errors.price}</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium">Stock</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                        value={form.data.stock}
+                                        onChange={(e) => form.setData('stock', e.target.value)}
+                                    />
+                                    {form.errors.stock && (
+                                        <p className="mt-1 text-xs text-destructive">{form.errors.stock}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium">Product Images</label>
+                                    <div className="space-y-3">
+                                        {/* Existing Images */}
+                                        {displayImages.length > 0 && (
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {displayImages.map((imageUrl, index) => (
+                                                    <div key={index} className="group relative">
+                                                        <img
+                                                            src={imageUrl}
+                                                            alt={`Product image ${index + 1}`}
+                                                            className="h-32 w-full rounded-lg object-cover"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeExistingImage(imageUrl)}
+                                                            className="absolute right-2 top-2 rounded-full bg-destructive p-1.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                                                        >
+                                                            <X className="size-4" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Upload New Images */}
+                                        <div
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-input bg-muted/30 p-6 transition-colors hover:border-primary hover:bg-muted/50"
+                                        >
+                                            <Upload className="mb-2 size-8 text-muted-foreground" />
+                                            <p className="text-sm font-medium">Click to upload images</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                PNG, JPG, WEBP up to 10MB (multiple images supported)
+                                            </p>
+                                        </div>
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            multiple
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleImageSelect}
+                                        />
+
+                                        {/* New Image Previews */}
+                                        {previewImages.length > 0 && (
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {previewImages.map((preview, index) => (
+                                                    <div key={index} className="group relative">
+                                                        <img
+                                                            src={preview}
+                                                            alt={`Preview ${index + 1}`}
+                                                            className="h-32 w-full rounded-lg object-cover"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeNewImage(index)}
+                                                            className="absolute right-2 top-2 rounded-full bg-destructive p-1.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                                                        >
+                                                            <X className="size-4" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {form.errors.images && (
+                                        <p className="mt-1 text-xs text-destructive">{form.errors.images}</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium">Main Image URL (Optional)</label>
+                                    <input
+                                        type="url"
+                                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                        value={form.data.image}
+                                        onChange={(e) => form.setData('image', e.target.value)}
+                                        placeholder="https://example.com/image.jpg"
+                                    />
+                                    <p className="mt-1 text-xs text-muted-foreground">
+                                        Or provide a URL for the main product image
+                                    </p>
+                                    {form.errors.image && (
+                                        <p className="mt-1 text-xs text-destructive">{form.errors.image}</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="mb-1 block text-sm font-medium">Description</label>
+                                    <textarea
+                                        rows={6}
+                                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                        value={form.data.description}
+                                        onChange={(e) => form.setData('description', e.target.value)}
+                                    />
+                                    {form.errors.description && (
+                                        <p className="mt-1 text-xs text-destructive">{form.errors.description}</p>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="is_active"
+                                        className="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-primary/20"
+                                        checked={form.data.is_active}
+                                        onChange={(e) => form.setData('is_active', e.target.checked)}
+                                    />
+                                    <label htmlFor="is_active" className="ml-2 text-sm">
+                                        Product is active
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <Button type="submit" disabled={form.processing}>
+                                {form.processing ? 'Updating...' : 'Update Product'}
+                            </Button>
+                            <Link href="/admin/products">
+                                <Button type="button" variant="outline">
+                                    Cancel
+                                </Button>
+                            </Link>
+                        </div>
+                    </form>
+                </div>
+            </AdminLayout>
+        </>
+    );
+}
