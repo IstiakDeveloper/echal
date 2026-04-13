@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliveryAmountController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\StockController;
 use Illuminate\Support\Facades\Route;
 
 // Admin Authentication Routes
@@ -34,10 +36,32 @@ Route::prefix('admin')->group(function () {
         Route::get('customers', [CustomerController::class, 'index'])->name('admin.customers.index');
         Route::get('customers/{user}', [CustomerController::class, 'show'])->name('admin.customers.show');
 
+        // Stock (index = products + history; create = add stock)
+        Route::get('stock', [StockController::class, 'index'])->name('admin.stock.index');
+        Route::get('stock/create', [StockController::class, 'create'])->name('admin.stock.create');
+        Route::post('stock', [StockController::class, 'store'])->name('admin.stock.store');
+        Route::get('stock/product-movements/{product}', [StockController::class, 'productMovements'])->name('admin.stock.product-movements');
+        Route::put('stock/{movement}', [StockController::class, 'update'])->name('admin.stock.update');
+        Route::delete('stock/{movement}', [StockController::class, 'destroy'])->name('admin.stock.destroy');
+
         // Delivery Amounts
         Route::get('delivery-amounts', [DeliveryAmountController::class, 'index'])->name('admin.delivery-amounts.index');
         Route::post('delivery-amounts', [DeliveryAmountController::class, 'store'])->name('admin.delivery-amounts.store');
         Route::put('delivery-amounts/{deliveryAmount}', [DeliveryAmountController::class, 'update'])->name('admin.delivery-amounts.update');
         Route::delete('delivery-amounts/{deliveryAmount}', [DeliveryAmountController::class, 'destroy'])->name('admin.delivery-amounts.destroy');
+
+        // Accounting & Reports
+        Route::get('accounting', [AccountingController::class, 'index'])->name('admin.accounting.index');
+        Route::get('accounting/bank-report', [AccountingController::class, 'bankReport'])->name('admin.accounting.bank-report');
+        Route::get('accounting/receipt-payment-report', [AccountingController::class, 'receiptPaymentReport'])->name('admin.accounting.receipt-payment-report');
+        Route::get('accounting/income-expenditure-report', [AccountingController::class, 'incomeExpenditureReport'])->name('admin.accounting.income-expenditure-report');
+        Route::get('accounting/balance-sheet-report', [AccountingController::class, 'balanceSheetReport'])->name('admin.accounting.balance-sheet-report');
+        Route::get('accounting/product-analysis-report', [AccountingController::class, 'productAnalysisReport'])->name('admin.accounting.product-analysis-report');
+        Route::get('accounting/product-analysis-report/export', [AccountingController::class, 'exportProductAnalysisReport'])->name('admin.accounting.product-analysis-report.export');
+        Route::get('accounting/transactions/create', [AccountingController::class, 'createTransaction'])->name('admin.accounting.transactions.create');
+        Route::post('accounting/transactions', [AccountingController::class, 'storeTransaction'])->name('admin.accounting.transactions.store');
+        Route::get('accounting/transactions/{transaction}/edit', [AccountingController::class, 'editTransaction'])->name('admin.accounting.transactions.edit');
+        Route::put('accounting/transactions/{transaction}', [AccountingController::class, 'updateTransaction'])->name('admin.accounting.transactions.update');
+        Route::delete('accounting/transactions/{transaction}', [AccountingController::class, 'destroyTransaction'])->name('admin.accounting.transactions.destroy');
     });
 });

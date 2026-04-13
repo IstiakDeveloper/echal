@@ -1,12 +1,7 @@
 import { Minus, Package, Plus, ShoppingCart } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from '@inertiajs/react';
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/cart-context';
 import { index as productsIndex } from '@/routes/products';
@@ -54,20 +49,21 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
     }, []);
 
     useEffect(() => {
-        if (open) {
-            fetchCart();
-        }
+        if (open) fetchCart();
     }, [open, fetchCart]);
 
     const handleSetQuantity = useCallback(
         (productId: number, quantity: number) => {
             setQuantity(productId, quantity);
-            setItems((prev) => {
-                const next = prev.map((i) =>
-                    i.id === productId ? { ...i, quantity, line_total: Number(i.price) * quantity } : i
-                ).filter((i) => i.quantity > 0);
-                return next;
-            });
+            setItems((prev) =>
+                prev
+                    .map((i) =>
+                        i.id === productId
+                            ? { ...i, quantity, line_total: Number(i.price) * quantity }
+                            : i
+                    )
+                    .filter((i) => i.quantity > 0)
+            );
             setTotal((prevTotal) => {
                 const item = items.find((i) => i.id === productId);
                 if (!item) return prevTotal;
@@ -83,35 +79,29 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
             <SheetContent
                 side="right"
                 showOverlay={false}
-                className="flex h-full w-full flex-col border-l border-border bg-background sm:max-w-md"
+                className="flex h-full w-full flex-col border-l border-border bg-background sm:max-w-sm"
             >
                 <SheetHeader className="shrink-0 border-b border-border py-4">
-                    <SheetTitle className="flex items-center gap-2 text-xl font-semibold">
-                        <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                            <ShoppingCart className="size-5" aria-hidden />
-                        </span>
-                        Your cart
-                    </SheetTitle>
+                    <SheetTitle className="text-lg font-semibold">Your cart</SheetTitle>
                 </SheetHeader>
                 <div className="min-h-0 flex-1 overflow-y-auto py-4">
                     {loading ? (
-                        <div className="flex flex-col items-center justify-center py-16">
-                            <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                            <span className="mt-4 text-sm text-muted-foreground">Loading…</span>
+                        <div className="flex flex-col items-center justify-center py-12">
+                            <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                            <p className="mt-3 text-sm text-muted-foreground">Loading…</p>
                         </div>
                     ) : items.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
-                            <div className="flex size-16 items-center justify-center rounded-2xl bg-muted">
-                                <Package className="size-8 text-muted-foreground" aria-hidden />
+                        <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
+                            <div className="flex size-14 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                                <Package className="size-7" aria-hidden />
                             </div>
-                            <p className="mt-5 text-base font-semibold text-foreground">Cart is empty</p>
+                            <p className="mt-4 font-medium text-foreground">Cart is empty</p>
                             <p className="mt-1 text-sm text-muted-foreground">
                                 Add rice from the shop to continue.
                             </p>
                             <Button
                                 variant="outline"
-                                size="lg"
-                                className="mt-6 gap-2"
+                                className="mt-6"
                                 onClick={() => onOpenChange(false)}
                                 asChild
                             >
@@ -119,13 +109,13 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                             </Button>
                         </div>
                     ) : (
-                        <ul className="space-y-3 px-1">
+                        <ul className="space-y-3">
                             {items.map((item) => (
                                 <li
                                     key={item.id}
-                                    className="flex gap-3 rounded-xl border border-border bg-card p-3 shadow-sm"
+                                    className="flex gap-3 rounded-xl border border-border bg-card p-3"
                                 >
-                                    <div className="size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
+                                    <div className="size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
                                         {item.image ? (
                                             <img
                                                 src={item.image}
@@ -134,22 +124,22 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                                             />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center">
-                                                <Package className="size-6 text-muted-foreground" />
+                                                <Package className="size-5 text-muted-foreground" />
                                             </div>
                                         )}
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-semibold text-foreground">
+                                        <p className="truncate text-sm font-medium text-foreground">
                                             {item.name}
                                         </p>
-                                        <p className="mt-0.5 text-xs text-muted-foreground">
+                                        <p className="text-xs text-muted-foreground">
                                             ৳{Number(item.price).toLocaleString()} × {item.quantity}
                                         </p>
                                         <div className="mt-2 flex items-center gap-1">
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
-                                                className="size-8 rounded-full"
+                                                className="size-7"
                                                 onClick={() =>
                                                     handleSetQuantity(
                                                         item.id,
@@ -157,24 +147,24 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                                                     )
                                                 }
                                             >
-                                                <Minus className="size-3.5" aria-hidden />
+                                                <Minus className="size-3" aria-hidden />
                                             </Button>
-                                            <span className="min-w-[1.5rem] text-center text-sm font-medium">
+                                            <span className="min-w-[1.25rem] text-center text-sm font-medium">
                                                 {item.quantity}
                                             </span>
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
-                                                className="size-8 rounded-full"
+                                                className="size-7"
                                                 onClick={() =>
                                                     handleSetQuantity(item.id, item.quantity + 1)
                                                 }
                                             >
-                                                <Plus className="size-3.5" aria-hidden />
+                                                <Plus className="size-3" aria-hidden />
                                             </Button>
                                         </div>
                                     </div>
-                                    <div className="shrink-0 text-right text-sm font-bold text-foreground">
+                                    <div className="shrink-0 text-right text-sm font-semibold text-foreground">
                                         ৳{item.line_total.toLocaleString()}
                                     </div>
                                 </li>
@@ -184,13 +174,13 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                 </div>
                 {items.length > 0 && (
                     <div className="shrink-0 border-t border-border bg-card p-4">
-                        <div className="mb-4 flex items-center justify-between">
-                            <span className="text-sm font-medium text-muted-foreground">Total</span>
-                            <span className="text-xl font-bold text-foreground">
+                        <div className="mb-3 flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Total</span>
+                            <span className="font-semibold text-foreground">
                                 ৳{total.toLocaleString()}
                             </span>
                         </div>
-                        <Button className="w-full gap-2" size="lg" asChild>
+                        <Button className="w-full" size="lg" asChild>
                             <Link href="/checkout">Proceed to checkout</Link>
                         </Button>
                     </div>

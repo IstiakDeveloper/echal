@@ -12,8 +12,13 @@ use Inertia\Response;
 
 class AuthController extends Controller
 {
-    public function showLoginForm(): Response
+    public function showLoginForm(): Response|RedirectResponse
     {
+        $role = Auth::user()?->role;
+        if (Auth::check() && ($role === 'admin' || $role === 'superadmin')) {
+            return redirect()->route('admin.dashboard');
+        }
+
         return Inertia::render('admin/auth/login');
     }
 
@@ -27,7 +32,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $user = Auth::user();
 
-            if ($user->role !== 'admin') {
+            if ($user->role !== 'admin' && $user->role !== 'superadmin') {
                 Auth::logout();
                 throw ValidationException::withMessages([
                     'email' => ['You do not have admin privileges.'],

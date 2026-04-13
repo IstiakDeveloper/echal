@@ -44,10 +44,17 @@ class HandleInertiaRequests extends Middleware
             static fn (array $item): int => (int) ($item['quantity'] ?? 0),
         );
 
-        // Get unread orders count for admin users
+        // Get unread orders count and bank balance for admin users
         $unreadOrdersCount = 0;
-        if ($request->user() && $request->user()->role === 'admin') {
+        $accountingCashBalance = null;
+        $role = $request->user()?->role;
+        if ($request->user() && ($role === 'admin' || $role === 'superadmin')) {
             $unreadOrdersCount = \App\Models\Order::whereNull('read_at')->count();
+            try {
+                $accountingCashBalance = app(\App\Services\AccountingService::class)->getCurrentCashBalance();
+            } catch (\Throwable) {
+                // Accounting not set up or seeder not run
+            }
         }
 
         return [
@@ -56,12 +63,17 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'cart' => [
                 'count' => $cartCount,
                 'items' => $cartItems,
             ],
             'unreadOrdersCount' => $unreadOrdersCount,
+            'accountingCashBalance' => $accountingCashBalance,
         ];
     }
 }

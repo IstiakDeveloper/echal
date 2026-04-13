@@ -7,57 +7,47 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ─── E-Chal design system (from zero) ─────────────────────────────────────
+   Warm, minimal, trustworthy. Rice = natural, clear, easy.
+   Primary: deep green. Background: warm off-white. One radius, one scale.
+──────────────────────────────────────────────────────────────────────────── */
+
 @theme {
     --font-sans:
         'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
-    --radius-lg: var(--radius);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-sm: calc(var(--radius) - 4px);
-    --radius-xl: calc(var(--radius) + 4px);
-    --radius-2xl: calc(var(--radius) + 8px);
-
-    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-    --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
-    --shadow-header: 0 1px 0 0 rgb(0 0 0 / 0.05);
-    --shadow-section: 0 1px 0 0 rgb(0 0 0 / 0.04);
+    --radius-sm: 0.5rem;
+    --radius: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.25rem;
+    --radius-2xl: 1.5rem;
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-
     --color-card: var(--card);
     --color-card-foreground: var(--card-foreground);
-
     --color-popover: var(--popover);
     --color-popover-foreground: var(--popover-foreground);
-
     --color-primary: var(--primary);
     --color-primary-foreground: var(--primary-foreground);
-
     --color-secondary: var(--secondary);
     --color-secondary-foreground: var(--secondary-foreground);
-
     --color-muted: var(--muted);
     --color-muted-foreground: var(--muted-foreground);
-
     --color-accent: var(--accent);
     --color-accent-foreground: var(--accent-foreground);
-
     --color-destructive: var(--destructive);
     --color-destructive-foreground: var(--destructive-foreground);
-
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
-
     --color-chart-1: var(--chart-1);
     --color-chart-2: var(--chart-2);
     --color-chart-3: var(--chart-3);
     --color-chart-4: var(--chart-4);
     --color-chart-5: var(--chart-5);
-
     --color-sidebar: var(--sidebar);
     --color-sidebar-foreground: var(--sidebar-foreground);
     --color-sidebar-primary: var(--sidebar-primary);
@@ -69,74 +59,74 @@
 }
 
 :root {
-    --background: oklch(0.988 0.003 145);
-    --foreground: oklch(0.12 0.02 265);
+    --background: oklch(0.98 0.005 90);
+    --foreground: oklch(0.2 0.02 260);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.12 0.02 265);
+    --card-foreground: oklch(0.2 0.02 260);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.12 0.02 265);
-    --primary: oklch(0.42 0.14 165);
+    --popover-foreground: oklch(0.2 0.02 260);
+    /* E-Chal green — strong, visible */
+    --primary: oklch(0.35 0.13 158);
     --primary-foreground: oklch(0.99 0 0);
-    --secondary: oklch(0.965 0.015 145);
-    --secondary-foreground: oklch(0.22 0.05 165);
-    --muted: oklch(0.965 0.015 145);
-    --muted-foreground: oklch(0.42 0.04 165);
-    --accent: oklch(0.94 0.04 145);
-    --accent-foreground: oklch(0.22 0.05 165);
-    --destructive: oklch(0.577 0.245 27.325);
+    --secondary: oklch(0.96 0.01 85);
+    --secondary-foreground: oklch(0.25 0.03 85);
+    --muted: oklch(0.96 0.01 85);
+    --muted-foreground: oklch(0.5 0.02 85);
+    --accent: oklch(0.94 0.02 85);
+    --accent-foreground: oklch(0.25 0.03 85);
+    --destructive: oklch(0.55 0.2 25);
     --destructive-foreground: oklch(0.99 0 0);
-    --border: oklch(0.91 0.015 145);
-    --input: oklch(0.91 0.015 145);
-    --ring: oklch(0.42 0.14 165);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --radius: 0.75rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
+    --border: oklch(0.92 0.01 85);
+    --input: oklch(0.92 0.01 85);
+    --ring: oklch(0.38 0.12 155);
+    --chart-1: oklch(0.55 0.2 155);
+    --chart-2: oklch(0.6 0.15 200);
+    --chart-3: oklch(0.65 0.12 85);
+    --chart-4: oklch(0.7 0.15 45);
+    --chart-5: oklch(0.5 0.1 280);
+    --sidebar: oklch(0.98 0.005 85);
+    --sidebar-foreground: oklch(0.18 0.02 85);
+    --sidebar-primary: oklch(0.38 0.12 155);
+    --sidebar-primary-foreground: oklch(0.99 0 0);
+    --sidebar-accent: oklch(0.95 0.01 85);
+    --sidebar-accent-foreground: oklch(0.2 0.02 85);
+    --sidebar-border: oklch(0.92 0.01 85);
+    --sidebar-ring: oklch(0.38 0.12 155);
 }
 
 .dark {
-    --background: oklch(0.14 0.012 165);
-    --foreground: oklch(0.97 0.01 145);
-    --card: oklch(0.18 0.018 165);
-    --card-foreground: oklch(0.97 0.01 145);
-    --popover: oklch(0.18 0.018 165);
-    --popover-foreground: oklch(0.97 0.01 145);
-    --primary: oklch(0.65 0.15 165);
-    --primary-foreground: oklch(0.14 0.02 165);
-    --secondary: oklch(0.24 0.025 165);
-    --secondary-foreground: oklch(0.97 0 0);
-    --muted: oklch(0.24 0.025 165);
-    --muted-foreground: oklch(0.65 0.04 165);
-    --accent: oklch(0.28 0.03 165);
-    --accent-foreground: oklch(0.97 0 0);
-    --destructive: oklch(0.396 0.141 25.723);
-    --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.28 0.02 165);
-    --input: oklch(0.28 0.02 165);
-    --ring: oklch(0.65 0.15 165);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    --background: oklch(0.16 0.02 85);
+    --foreground: oklch(0.96 0.01 85);
+    --card: oklch(0.2 0.02 85);
+    --card-foreground: oklch(0.96 0.01 85);
+    --popover: oklch(0.2 0.02 85);
+    --popover-foreground: oklch(0.96 0.01 85);
+    --primary: oklch(0.6 0.14 155);
+    --primary-foreground: oklch(0.16 0.02 85);
+    --secondary: oklch(0.26 0.02 85);
+    --secondary-foreground: oklch(0.96 0 0);
+    --muted: oklch(0.26 0.02 85);
+    --muted-foreground: oklch(0.65 0.02 85);
+    --accent: oklch(0.3 0.03 85);
+    --accent-foreground: oklch(0.96 0 0);
+    --destructive: oklch(0.5 0.18 25);
+    --destructive-foreground: oklch(0.99 0 0);
+    --border: oklch(0.3 0.02 85);
+    --input: oklch(0.3 0.02 85);
+    --ring: oklch(0.6 0.14 155);
+    --chart-1: oklch(0.6 0.15 155);
+    --chart-2: oklch(0.65 0.12 200);
+    --chart-3: oklch(0.7 0.1 85);
+    --chart-4: oklch(0.75 0.12 45);
+    --chart-5: oklch(0.55 0.12 280);
+    --sidebar: oklch(0.2 0.02 85);
+    --sidebar-foreground: oklch(0.96 0 0);
+    --sidebar-primary: oklch(0.6 0.14 155);
+    --sidebar-primary-foreground: oklch(0.16 0.02 85);
+    --sidebar-accent: oklch(0.28 0.02 85);
+    --sidebar-accent-foreground: oklch(0.96 0 0);
+    --sidebar-border: oklch(0.3 0.02 85);
+    --sidebar-ring: oklch(0.5 0.1 155);
 }
 
 @layer base {
@@ -144,12 +134,181 @@
         @apply border-border;
     }
 
-    body {
-        @apply bg-background text-foreground antialiased;
-    }
-
-    /* Smooth scroll for anchor links */
     html {
         scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-background text-foreground antialiased;
+        font-feature-settings: 'rlig' 1, 'calt' 1;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-heading);
+        font-weight: 700;
+    }
+}
+
+/* ─── Accounting reports: normal grid, thick middle divider only ───────────
+   Receipt & Payment / Income & Expenditure / Balance Sheet: majhkhaner border
+   mota (bold). Baki cell borders normal 1px.
+──────────────────────────────────────────────────────────────────────────── */
+
+.report-table {
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+}
+.report-table th,
+.report-table td {
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8125rem;
+}
+.report-th, .report-td {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8125rem;
+    border: 1px solid var(--border);
+}
+.report-table thead th {
+    background: var(--muted);
+    font-weight: 600;
+}
+.report-table tfoot td {
+    background: var(--muted);
+    font-weight: 600;
+}
+.report-total-row {
+    min-height: 2.5rem;
+}
+.report-total-row .report-td {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    vertical-align: middle;
+}
+.report-th.report-num, .report-td.report-num {
+    min-width: 5rem;
+}
+.report-balance-col, .report-total-col {
+    min-width: 5.5rem;
+}
+
+/* Majhkhaner border: sudhu left block er shesh column er right e (ekta line). Baki sob normal. */
+.report-divider {
+    border-right: 4px solid var(--foreground) !important;
+}
+
+/* Product Analysis: screen e kom width, choto font/padding jate kom scroll */
+.report-product-analysis .product-analysis-table {
+    font-size: 0.65rem;
+}
+.report-product-analysis .product-analysis-table th,
+.report-product-analysis .product-analysis-table td {
+    padding: 0.15rem 0.3rem;
+}
+.report-product-analysis .product-analysis-table .report-num {
+    min-width: 0;
+    white-space: nowrap;
+}
+.report-product-analysis .product-analysis-table th:first-child,
+.report-product-analysis .product-analysis-table td:first-child {
+    max-width: 2.5rem;
+}
+.report-product-analysis .product-analysis-table th:nth-child(2),
+.report-product-analysis .product-analysis-table td:nth-child(2) {
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.report-product-analysis .report-paper {
+    margin: 0;
+}
+.report-product-analysis .report-paper .overflow-x-auto {
+    overflow-x: auto;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .report-container,
+    .report-container *,
+    .report-paper,
+    .report-paper * {
+        visibility: visible;
+    }
+    .report-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        background: white;
+        color: #000;
+    }
+    .no-print {
+        display: none !important;
+    }
+    .report-paper {
+        width: 100% !important;
+        border: 1px solid #000 !important;
+        box-shadow: none;
+    }
+    .report-table {
+        width: 100% !important;
+        break-inside: auto;
+        border: 1px solid #000 !important;
+    }
+    .report-table th,
+    .report-table td {
+        border: 1px solid #000 !important;
+    }
+    .report-divider {
+        border-right: 4px solid #000 !important;
+    }
+    .report-tr {
+        break-inside: avoid;
+    }
+    .report-total-row {
+        break-inside: avoid;
+    }
+
+    /* Bank report: choto font/padding, date column width jate sob 1 line e fit hoy */
+    .report-bank .report-table th,
+    .report-bank .report-table td {
+        font-size: 9px !important;
+        padding: 2px 4px !important;
+    }
+    .report-bank .report-table .report-date {
+        min-width: 4rem !important;
+        white-space: nowrap !important;
+    }
+    .report-bank .report-paper > div:first-child {
+        font-size: 10px !important;
+        padding: 4px 6px !important;
+    }
+
+    /* Product Analysis Report: ek page e fit - font/padding minimum, margin kom */
+    .report-product-analysis.report-paper {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+    .report-product-analysis .product-analysis-table {
+        table-layout: fixed !important;
+        width: 100% !important;
+        font-size: 6px !important;
+    }
+    .report-product-analysis .product-analysis-table th,
+    .report-product-analysis .product-analysis-table td {
+        padding: 1px 2px !important;
+        font-size: 6px !important;
+    }
+    .report-product-analysis .product-analysis-table .report-num {
+        min-width: 0 !important;
+    }
+    .report-container.report-product-analysis-page {
+        padding: 0 !important;
+        margin: 0 !important;
     }
 }
