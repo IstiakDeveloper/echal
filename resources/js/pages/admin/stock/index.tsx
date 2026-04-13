@@ -1,8 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useCallback, useState } from 'react';
-import AdminLayout from '@/layouts/admin-layout';
-import { Button } from '@/components/ui/button';
 import * as Dialog from '@radix-ui/react-dialog';
+import { useCallback, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import AdminLayout from '@/layouts/admin-layout';
 
 type Product = { id: number; name: string; stock: number; cost_price: number | null };
 type HistoryMovement = { id: number; quantity: number; total_amount: number; unit_price: number; created_at: string };

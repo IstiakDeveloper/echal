@@ -1,7 +1,5 @@
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
 import {
-    BarChart3,
     Box,
     Calculator,
     ExternalLink,
@@ -13,9 +11,11 @@ import {
     ShoppingBag,
     Users,
 } from 'lucide-react';
-import { home } from '@/routes';
+import { useEffect, useState } from 'react';
+import { BrandLogoPlate, brandLogoImageClass } from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { home } from '@/routes';
 import type { SharedData } from '@/types';
 
 type AdminLayoutProps = {
@@ -113,7 +113,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     {/* Logo */}
                     <div className="border-b border-border p-4">
                         <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold">
-                            <BarChart3 className="size-5 text-primary" />
+                            <BrandLogoPlate rounded="lg" className="size-10">
+                                <img src="/logo.png" alt="" className={brandLogoImageClass} />
+                            </BrandLogoPlate>
                             <span>E-Chal Admin</span>
                         </Link>
                     </div>

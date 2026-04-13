@@ -1,12 +1,13 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowRight, Leaf, Package, ShoppingBag, UserPlus } from 'lucide-react';
+import { ArrowRight, ShoppingBag, UserPlus } from 'lucide-react';
 import { useCallback } from 'react';
-import { Button } from '@/components/ui/button';
+import { BrandLogoPlate, brandLogoImageClass } from '@/components/app-logo-icon';
 import ProductCard from '@/components/store/product-card';
+import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/cart-context';
 import StoreLayout from '@/layouts/store-layout';
-import { index as productsIndex } from '@/routes/products';
 import { register } from '@/routes';
+import { index as productsIndex } from '@/routes/products';
 import type { SharedData } from '@/types';
 
 type Category = {
@@ -148,7 +149,13 @@ export default function StoreHome({
                                                             className="size-6 rounded object-cover"
                                                         />
                                                     ) : (
-                                                        <Leaf className="size-4 text-primary/60" aria-hidden />
+                                                        <BrandLogoPlate rounded="lg" className="size-7">
+                                                            <img
+                                                                src="/logo.png"
+                                                                alt=""
+                                                                className={brandLogoImageClass}
+                                                            />
+                                                        </BrandLogoPlate>
                                                     )}
                                                     <span>{cat.name}</span>
                                                 </Link>

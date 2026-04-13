@@ -35,12 +35,4 @@ return [
         ],
     ],
 
-    'twilio' => [
-        'sid' => env('TWILIO_SID'),
-        'token' => env('TWILIO_AUTH_TOKEN'),
-        'verify_service_sid' => env('TWILIO_VERIFY_SERVICE_SID'),
-        'dev_mode' => env('TWILIO_DEV_MODE', false),
-        'dev_otp' => env('TWILIO_DEV_OTP', '123456'),
-    ],
-
 ];

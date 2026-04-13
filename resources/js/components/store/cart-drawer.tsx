@@ -1,8 +1,8 @@
+import { Link } from '@inertiajs/react';
 import { Minus, Package, Plus, ShoppingCart } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from '@inertiajs/react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useCart } from '@/contexts/cart-context';
 import { index as productsIndex } from '@/routes/products';
 

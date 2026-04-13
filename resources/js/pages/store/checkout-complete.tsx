@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import StoreLayout from '@/layouts/store-layout';
 import { Button } from '@/components/ui/button';
+import StoreLayout from '@/layouts/store-layout';
 import type { SharedData } from '@/types';
 
 export default function StoreCheckoutComplete({

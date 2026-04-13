@@ -1,7 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Edit2, Plus, Trash2 } from 'lucide-react';
-import AdminLayout from '@/layouts/admin-layout';
 import { Button } from '@/components/ui/button';
+import AdminLayout from '@/layouts/admin-layout';
 
 const TYPE_LABELS: Record<string, string> = {
     order: 'Sale',

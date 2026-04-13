@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
-import AppLogoIcon from '@/components/app-logo-icon';
+import AppLogoIcon, { BrandLogoPlate, brandLogoImageClass } from '@/components/app-logo-icon';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 
@@ -25,9 +25,9 @@ export default function AuthSimpleLayout({
                             href={home()}
                             className="flex flex-col items-center gap-2 text-foreground no-underline"
                         >
-                            <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                                <AppLogoIcon className="size-6 fill-current" />
-                            </div>
+                            <BrandLogoPlate className="size-11">
+                                <AppLogoIcon className={brandLogoImageClass} />
+                            </BrandLogoPlate>
                             <span className="sr-only">{title}</span>
                         </Link>
                         <div className="space-y-2 text-center">

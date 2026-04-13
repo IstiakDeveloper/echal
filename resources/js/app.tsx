@@ -5,8 +5,11 @@ import { createRoot } from 'react-dom/client';
 import { CartProvider } from '@/contexts/cart-context';
 import '../css/app.css';
 import { initializeTheme } from './hooks/use-appearance';
+import { initFirebase } from './lib/firebase';
 
 const appName = import.meta.env.VITE_APP_NAME ?? 'E-Chal';
+
+initFirebase();
 
 createInertiaApp({
     title: (title) => (title ? `${title} — ${appName}` : appName),

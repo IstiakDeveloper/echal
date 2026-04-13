@@ -1,7 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import AdminLayout from '@/layouts/admin-layout';
-import { Button } from '@/components/ui/button';
 import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
+import AdminLayout from '@/layouts/admin-layout';
 
 const TRANSACTION_TYPES = [
     { value: 'opening_balance', label: 'Opening balance' },

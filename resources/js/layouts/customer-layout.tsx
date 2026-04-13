@@ -1,9 +1,10 @@
-import { Link, router, useForm, usePage } from '@inertiajs/react';
+import { Link, useForm, usePage } from '@inertiajs/react';
 import { Home, Package, ShoppingBag, User, LogOut } from 'lucide-react';
+import { BrandLogoPlate, brandLogoImageClass } from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
 import { home as homeRoute } from '@/routes';
-import { index as productsIndex } from '@/routes/products';
 import { dashboard } from '@/routes';
+import { index as productsIndex } from '@/routes/products';
 import type { SharedData } from '@/types';
 
 type CustomerLayoutProps = {
@@ -27,7 +28,9 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                         href={homeRoute()}
                         className="flex items-center gap-2 text-lg font-semibold tracking-tight"
                     >
-                        <Package className="size-5 text-primary" aria-hidden />
+                        <BrandLogoPlate rounded="lg" className="size-10">
+                            <img src="/logo.png" alt="" className={brandLogoImageClass} />
+                        </BrandLogoPlate>
                         E-Chal
                     </Link>
                     <nav className="hidden items-center gap-1 text-sm sm:flex sm:gap-2">

@@ -1,7 +1,8 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
-import { Leaf, Package, ShoppingCart, User } from 'lucide-react';
+import { Package, ShoppingCart, User } from 'lucide-react';
 import { Shield } from 'lucide-react';
+import { useEffect } from 'react';
+import { BrandLogoPlate, brandLogoImageClass } from '@/components/app-logo-icon';
 import CartDrawer from '@/components/store/cart-drawer';
 import { useCart } from '@/contexts/cart-context';
 import { dashboard, home as homeRoute, register } from '@/routes';
@@ -56,9 +57,9 @@ export default function StoreLayout({ children }: StoreLayoutProps) {
                         href={homeRoute()}
                         className="flex shrink-0 items-center gap-3 text-foreground no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl transition-opacity hover:opacity-90"
                     >
-                        <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm sm:size-11">
-                            <Leaf className="size-5 sm:size-6" aria-hidden />
-                        </span>
+                        <BrandLogoPlate className="size-11 sm:size-12">
+                            <img src="/logo.png" alt="" className={brandLogoImageClass} />
+                        </BrandLogoPlate>
                         <span className="text-lg font-bold tracking-tight text-foreground sm:text-xl">E-Chal</span>
                     </Link>
                     <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main">
@@ -121,7 +122,9 @@ export default function StoreLayout({ children }: StoreLayoutProps) {
                         href={homeRoute()}
                         className="flex min-h-[3.25rem] flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-2 text-[11px] font-medium text-muted-foreground transition-colors active:bg-muted active:text-foreground"
                     >
-                        <Leaf className="size-5" aria-hidden />
+                        <BrandLogoPlate rounded="lg" className="size-6">
+                            <img src="/logo.png" alt="" className={brandLogoImageClass} />
+                        </BrandLogoPlate>
                         Home
                     </Link>
                     <Link
@@ -174,9 +177,9 @@ export default function StoreLayout({ children }: StoreLayoutProps) {
                                 href={homeRoute()}
                                 className="inline-flex items-center gap-2.5 text-foreground no-underline"
                             >
-                                <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                                    <Leaf className="size-5" aria-hidden />
-                                </span>
+                                <BrandLogoPlate className="size-11">
+                                    <img src="/logo.png" alt="" className={brandLogoImageClass} />
+                                </BrandLogoPlate>
                                 <span className="text-lg font-bold tracking-tight">E-Chal</span>
                             </Link>
                             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">

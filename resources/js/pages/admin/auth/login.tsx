@@ -1,5 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Home, LogIn } from 'lucide-react';
+import { BrandLogoPlate, brandLogoImageClass } from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
 import { home } from '@/routes';
 
@@ -28,6 +29,11 @@ export default function AdminLogin() {
                         Back to home
                     </Link>
                     <div className="mb-8 text-center">
+                        <div className="mb-6 flex justify-center">
+                            <BrandLogoPlate className="mx-auto h-[4.75rem] w-full max-w-[240px] px-2 py-1">
+                                <img src="/logo.png" alt="" className={brandLogoImageClass} />
+                            </BrandLogoPlate>
+                        </div>
                         <h1 className="text-3xl font-bold">Admin Login</h1>
                         <p className="mt-2 text-muted-foreground">Sign in to access the admin panel</p>
                     </div>

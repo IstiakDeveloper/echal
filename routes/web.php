@@ -5,6 +5,7 @@ use App\Http\Controllers\Store\CheckoutController;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -76,22 +77,57 @@ Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.st
 
 Route::get('checkout/complete', [CheckoutController::class, 'complete'])->name('checkout.complete');
 
-// Phone-based authentication (OTP)
+// Phone-only login (no OTP)
 Route::get('login', [\App\Http\Controllers\Auth\PhoneAuthController::class, 'show'])->name('login');
-Route::post('auth/phone/send-otp', [\App\Http\Controllers\Auth\PhoneAuthController::class, 'sendOTP'])->name('auth.phone.send-otp');
-Route::post('auth/phone/verify-otp', [\App\Http\Controllers\Auth\PhoneAuthController::class, 'verifyOTP'])->name('auth.phone.verify-otp');
+Route::post('auth/phone/login', [\App\Http\Controllers\Auth\PhoneAuthController::class, 'login'])
+    ->middleware('throttle:30,1')
+    ->name('auth.phone.login');
 
 Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
 Route::get('profile', [\App\Http\Controllers\ProfileController::class, 'show'])->middleware(['auth'])->name('profile.show');
-Route::put('profile', [\App\Http\Controllers\ProfileController::class, 'update'])->middleware(['auth'])->name('profile.update');
+Route::put('profile', [\App\Http\Controllers\ProfileController::class, 'update'])->middleware(['auth'])->name('customer.profile.update');
 
 Route::post('logout', function () {
     auth()->logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
+
     return redirect()->route('home');
 })->middleware(['auth'])->name('logout');
+
+$allowSetupRoutes = app()->environment('local')
+    || filter_var(env('ALLOW_SETUP_ROUTES', false), FILTER_VALIDATE_BOOLEAN);
+
+if ($allowSetupRoutes) {
+    Route::get('migrate', function () {
+        try {
+            Artisan::call('migrate', ['--force' => true]);
+        } catch (\Throwable $e) {
+            return response('Error: '.$e->getMessage(), 500)->header('Content-Type', 'text/plain; charset=UTF-8');
+        }
+
+        $out = trim(Artisan::output());
+
+        return response($out !== '' ? $out : 'Migrations finished.', 200)
+            ->header('Content-Type', 'text/plain; charset=UTF-8');
+    })->name('setup.migrate');
+
+    Route::prefix('setup')->group(function () {
+        Route::get('storage-link', function () {
+            try {
+                Artisan::call('storage:link', ['--force' => true]);
+            } catch (\Throwable $e) {
+                return response('Error: '.$e->getMessage(), 500)->header('Content-Type', 'text/plain; charset=UTF-8');
+            }
+
+            $out = trim(Artisan::output());
+
+            return response($out !== '' ? $out : 'Storage link created.', 200)
+                ->header('Content-Type', 'text/plain; charset=UTF-8');
+        })->name('setup.storage-link');
+    });
+}
 
 require __DIR__.'/settings.php';
 require __DIR__.'/admin.php';

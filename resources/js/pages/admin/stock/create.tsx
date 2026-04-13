@@ -1,8 +1,8 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import AdminLayout from '@/layouts/admin-layout';
-import { Button } from '@/components/ui/button';
 import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
+import AdminLayout from '@/layouts/admin-layout';
 
 type Product = { id: number; name: string; stock: number; cost_price: number | null; last_unit_price: number | null };
 

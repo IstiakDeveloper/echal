@@ -1,10 +1,10 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
 import { MapPin, Smartphone, Package } from 'lucide-react';
-import StoreLayout from '@/layouts/store-layout';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Switch } from '@/components/ui/switch';
+import StoreLayout from '@/layouts/store-layout';
 import type { SharedData } from '@/types';
 
 type CartItem = {
