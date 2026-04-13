@@ -201,26 +201,21 @@ export default function StoreCheckout({
         <>
             <Head title="Checkout — E-Chal" />
             <StoreLayout>
-                <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
+                <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
                     <div className="mb-8">
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                            Checkout
-                        </h1>
-                        <p className="mt-2 text-sm text-muted-foreground">
+                        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Checkout</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">
                             Complete your order by providing delivery details
                         </p>
                     </div>
 
-                    <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
-                        {/* Left: Delivery Form */}
+                    <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-8">
                         <section className="min-w-0 flex-1 space-y-6">
-                            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+                            <div className="rounded-xl border border-border bg-card p-5 sm:p-6">
                                 <div className="mb-5 flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10">
-                                            <MapPin className="size-5 text-primary" />
-                                        </div>
-                                        <h2 className="text-lg font-bold text-foreground">Delivery Location</h2>
+                                    <div className="flex items-center gap-2">
+                                        <MapPin className="size-4 text-primary" aria-hidden />
+                                        <h2 className="text-lg font-semibold text-foreground">Delivery location</h2>
                                     </div>
                                     {user && savedAddress && (
                                         <div className="flex items-center gap-2.5">
@@ -378,21 +373,17 @@ export default function StoreCheckout({
                             </div>
                         </section>
 
-                        {/* Right: Order Summary Sidebar */}
-                        <aside className="w-full lg:sticky lg:top-24 lg:w-[380px] lg:shrink-0">
-                            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
-                                <div className="mb-5 flex items-center gap-3">
-                                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10">
-                                        <Package className="size-5 text-primary" />
-                                    </div>
-                                    <h2 className="text-lg font-bold text-foreground">Order Summary</h2>
-                                </div>
-
+                        <aside className="w-full lg:sticky lg:top-20 lg:w-[20rem] lg:shrink-0">
+                            <div className="rounded-xl border border-border bg-card p-5 sm:p-6 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+                                <h2 className="mb-5 flex items-center gap-2 text-lg font-semibold text-foreground">
+                                    <Package className="size-4 text-primary" aria-hidden />
+                                    Order summary
+                                </h2>
                                 <div className="mb-5 space-y-3 border-b border-border pb-5">
                                     {items.map((item) => (
                                         <div
                                             key={item.id}
-                                            className="flex items-start gap-3 rounded-xl bg-muted/30 p-3"
+                                            className="flex items-start gap-3 rounded-lg bg-muted/40 p-3"
                                         >
                                             <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
                                                 {item.image ? (
@@ -449,7 +440,7 @@ export default function StoreCheckout({
                                     </div>
                                 </div>
 
-                                <div className="mt-5 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
+                                <div className="mt-5 rounded-lg border border-primary/15 bg-primary/5 p-3 text-xs text-muted-foreground">
                                     <p>
                                         After placing your order, you&apos;ll receive a confirmation SMS. You can track
                                         your order from your account dashboard.

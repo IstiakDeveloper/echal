@@ -1,12 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
-import { Leaf, Package, ShoppingCart, User, UserPlus } from 'lucide-react';
+import { Leaf, Package, ShoppingCart, User } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import CartDrawer from '@/components/store/cart-drawer';
 import { useCart } from '@/contexts/cart-context';
-import { dashboard, home as homeRoute, login, register } from '@/routes';
+import { dashboard, home as homeRoute, register } from '@/routes';
 import { index as productsIndex } from '@/routes/products';
 import type { SharedData } from '@/types';
-import { Button } from '@/components/ui/button';
 
 type StoreLayoutProps = {
     children: React.ReactNode;
@@ -17,6 +17,7 @@ export default function StoreLayout({ children }: StoreLayoutProps) {
         cart?: { count: number; items: Record<string, { quantity: number }> };
     };
     const { count: cartCount, setFromServer, drawerOpen, setDrawerOpen } = useCart();
+    const isAdmin = Boolean(auth?.user && (auth.user.role === 'admin' || auth.user.role === 'superadmin'));
 
     useEffect(() => {
         if (serverCart != null) {
@@ -24,128 +25,248 @@ export default function StoreLayout({ children }: StoreLayoutProps) {
         }
     }, [serverCart?.count, serverCart != null ? JSON.stringify(serverCart.items) : null, setFromServer]);
 
-    const drawerWidth = 'min(90vw, 18rem)';
+    const drawerWidth = 'min(90vw, 22rem)';
 
     return (
         <div
-            className="min-h-screen bg-background text-foreground transition-[margin] duration-300 ease-out"
+            className="min-h-screen bg-background text-foreground"
             style={drawerOpen ? { marginRight: drawerWidth } : undefined}
         >
-            <header className="sticky top-0 z-50 border-b border-border bg-background/95 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
-                <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:h-16 sm:px-6">
+            {/* Top bar — trust line + Admin link (separate from main nav) */}
+            <div className="flex items-center justify-between gap-4 border-b border-border/60 bg-primary/8 px-4 py-2 sm:px-6">
+                <p className="flex-1 text-center text-xs font-medium text-muted-foreground sm:text-sm">
+                    Free delivery on orders over ৳2,000 · Fresh stock · Bangladesh-wide
+                </p>
+                <Link
+                    href={isAdmin ? '/admin' : '/admin/login'}
+                    className="shrink-0 rounded px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                    title={isAdmin ? 'Admin dashboard' : 'Admin login'}
+                >
+                    <span className="flex items-center gap-1.5">
+                        <Shield className="size-3.5" aria-hidden />
+                        Admin
+                    </span>
+                </Link>
+            </div>
+
+            {/* Header — professional, minimal */}
+            <header className="sticky top-0 z-50 border-b border-border bg-background/98 shadow-[0_1px_0_0_var(--color-border)] backdrop-blur-md">
+                <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-4 sm:h-[4.5rem] sm:px-6 lg:px-8">
                     <Link
                         href={homeRoute()}
-                        className="flex items-center gap-2.5 text-lg font-bold tracking-tight text-foreground sm:text-xl"
+                        className="flex shrink-0 items-center gap-3 text-foreground no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl transition-opacity hover:opacity-90"
                     >
-                        <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground sm:size-10">
-                            <Leaf className="size-5 sm:size-5" aria-hidden />
+                        <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm sm:size-11">
+                            <Leaf className="size-5 sm:size-6" aria-hidden />
                         </span>
-                        <span className="hidden sm:inline">E-Chal</span>
+                        <span className="text-lg font-bold tracking-tight text-foreground sm:text-xl">E-Chal</span>
                     </Link>
-                    <nav className="flex items-center gap-0.5 text-sm sm:gap-1">
+                    <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main">
                         <Link
                             href={productsIndex.url()}
-                            className="flex items-center gap-2 rounded-lg px-3 py-2.5 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-4"
+                            className="rounded-lg px-3.5 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
-                            <Package className="size-4" aria-hidden />
-                            <span className="hidden sm:inline">All rice</span>
+                            <span className="flex items-center gap-2">
+                                <Package className="size-4 sm:hidden" aria-hidden />
+                                <span className="hidden sm:inline">All rice</span>
+                            </span>
                         </Link>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="relative gap-2 rounded-lg px-3 py-2.5 text-muted-foreground hover:text-foreground sm:px-4"
+                        <button
+                            type="button"
                             onClick={() => setDrawerOpen(true)}
+                            className="relative rounded-lg px-3.5 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
-                            <ShoppingCart className="size-4" aria-hidden />
-                            <span className="hidden sm:inline">Cart</span>
-                            {cartCount > 0 && (
-                                <span className="absolute -right-0.5 -top-0.5 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
-                                    {cartCount}
-                                </span>
-                            )}
-                        </Button>
+                            <span className="flex items-center gap-2">
+                                <ShoppingCart className="size-4" aria-hidden />
+                                <span className="hidden sm:inline">Cart</span>
+                                {cartCount > 0 && (
+                                    <span className="absolute -right-0.5 -top-0.5 flex size-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </span>
+                        </button>
                         <CartDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
                         {auth?.user ? (
                             <Link
-                                href={dashboard.url()}
-                                className="flex items-center gap-2 rounded-lg px-3 py-2.5 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:px-4"
+                                href={isAdmin ? '/admin' : dashboard.url()}
+                                className="rounded-lg px-3.5 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             >
-                                <User className="size-4" aria-hidden />
-                                <span className="hidden sm:inline">Account</span>
+                                <span className="flex items-center gap-2">
+                                    <User className="size-4 sm:hidden" aria-hidden />
+                                    <span className="hidden sm:inline">{isAdmin ? 'Admin' : 'Account'}</span>
+                                </span>
                             </Link>
                         ) : (
-                            <Link href="/login">
-                                <Button variant="ghost" size="sm" className="gap-2 rounded-lg px-3 py-2.5 sm:px-4">
-                                    <User className="size-4" aria-hidden />
-                                    Log in
-                                </Button>
+                            <Link
+                                href="/login"
+                                className="rounded-lg px-3.5 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                                Log in
                             </Link>
                         )}
                     </nav>
                 </div>
             </header>
-            <main className="pb-20 sm:pb-8">{children}</main>
-            {/* Mobile bottom navigation — large touch targets, safe area */}
-            <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] pt-2 text-xs backdrop-blur-md supports-[backdrop-filter]:bg-background/90 sm:hidden">
-                <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-2">
+
+            <main className="pb-24 sm:pb-12">{children}</main>
+
+            {/* Mobile bottom nav */}
+            <nav
+                className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] pt-2 backdrop-blur-sm sm:hidden"
+                aria-label="Main"
+            >
+                <div className="mx-auto flex max-w-6xl items-stretch justify-around px-2">
                     <Link
                         href={homeRoute()}
-                        className="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 rounded-lg py-2 text-muted-foreground transition-colors active:bg-muted"
+                        className="flex min-h-[3.25rem] flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-2 text-[11px] font-medium text-muted-foreground transition-colors active:bg-muted active:text-foreground"
                     >
-                        <Leaf className="size-6" aria-hidden />
-                        <span>Home</span>
+                        <Leaf className="size-5" aria-hidden />
+                        Home
                     </Link>
                     <Link
                         href={productsIndex.url()}
-                        className="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 rounded-lg py-2 text-muted-foreground transition-colors active:bg-muted"
+                        className="flex min-h-[3.25rem] flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-2 text-[11px] font-medium text-muted-foreground transition-colors active:bg-muted active:text-foreground"
                     >
-                        <Package className="size-6" aria-hidden />
-                        <span>Rice</span>
+                        <Package className="size-5" aria-hidden />
+                        Rice
                     </Link>
                     <button
                         type="button"
                         onClick={() => setDrawerOpen(true)}
-                        className="relative flex min-h-14 flex-1 flex-col items-center justify-center gap-1 rounded-lg py-2 text-muted-foreground transition-colors active:bg-muted"
+                        className="relative flex min-h-[3.25rem] flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-2 text-[11px] font-medium text-muted-foreground transition-colors active:bg-muted active:text-foreground"
                     >
-                        <ShoppingCart className="size-6" aria-hidden />
-                        <span>Cart</span>
+                        <ShoppingCart className="size-5" aria-hidden />
+                        Cart
                         {cartCount > 0 && (
-                            <span className="absolute right-1/4 top-1.5 inline-flex min-h-5 min-w-5 translate-x-2 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                            <span className="absolute right-1/4 top-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
                                 {cartCount}
                             </span>
                         )}
                     </button>
                     {auth?.user ? (
                         <Link
-                            href={dashboard.url()}
-                            className="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 rounded-lg py-2 text-muted-foreground transition-colors active:bg-muted"
+                            href={isAdmin ? '/admin' : dashboard.url()}
+                            className="flex min-h-[3.25rem] flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-2 text-[11px] font-medium text-muted-foreground transition-colors active:bg-muted active:text-foreground"
                         >
-                            <User className="size-6" aria-hidden />
-                            <span>Account</span>
+                            <User className="size-5" aria-hidden />
+                            {isAdmin ? 'Admin' : 'Account'}
                         </Link>
                     ) : (
                         <Link
                             href="/login"
-                            className="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 rounded-lg py-2 text-muted-foreground transition-colors active:bg-muted"
+                            className="flex min-h-[3.25rem] flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-2 text-[11px] font-medium text-primary transition-colors active:bg-primary/10"
                         >
-                            <User className="size-6" aria-hidden />
-                            <span>Login</span>
+                            <User className="size-5" aria-hidden />
+                            Login
                         </Link>
                     )}
                 </div>
             </nav>
-            <footer className="border-t border-border bg-muted/30 px-4 py-10 sm:px-6">
-                <div className="mx-auto max-w-6xl">
-                    <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:justify-between sm:text-left">
-                        <Link
-                            href={homeRoute()}
-                            className="flex items-center gap-2 font-semibold text-foreground"
-                        >
-                            <Leaf className="size-5 text-primary" aria-hidden />
-                            E-Chal
-                        </Link>
-                        <p className="text-sm text-muted-foreground">
-                            © {new Date().getFullYear()} E-Chal. Premium rice, one place. Bangladesh.
+
+            {/* Footer — professional, multi-column */}
+            <footer className="border-t border-border bg-muted/40">
+                <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+                    <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+                        {/* Brand */}
+                        <div className="sm:col-span-2 lg:col-span-1">
+                            <Link
+                                href={homeRoute()}
+                                className="inline-flex items-center gap-2.5 text-foreground no-underline"
+                            >
+                                <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                                    <Leaf className="size-5" aria-hidden />
+                                </span>
+                                <span className="text-lg font-bold tracking-tight">E-Chal</span>
+                            </Link>
+                            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
+                                Premium rice, one place. Miniket, Chinigura, Basmati — fresh stock, clear prices, Bangladesh-wide delivery.
+                            </p>
+                        </div>
+                        {/* Quick links */}
+                        <div>
+                            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+                                Shop
+                            </h3>
+                            <ul className="mt-4 space-y-3">
+                                <li>
+                                    <Link
+                                        href={productsIndex.url()}
+                                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                    >
+                                        All rice
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        href={productsIndex.url()}
+                                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                    >
+                                        Categories
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        href={homeRoute()}
+                                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                    >
+                                        Home
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
+                        {/* Account & support */}
+                        <div>
+                            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+                                Account
+                            </h3>
+                            <ul className="mt-4 space-y-3">
+                                {auth?.user ? (
+                                    <li>
+                                        <Link
+                                            href={isAdmin ? '/admin' : dashboard.url()}
+                                            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                        >
+                                            {isAdmin ? 'Admin dashboard' : 'My account'}
+                                        </Link>
+                                    </li>
+                                ) : (
+                                    <>
+                                        <li>
+                                            <Link
+                                                href="/login"
+                                                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                            >
+                                                Log in
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href={register()}
+                                                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                            >
+                                                Register
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href="/admin/login"
+                                                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                            >
+                                                Admin
+                                            </Link>
+                                        </li>
+                                    </>
+                                )}
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
+                        <p className="text-xs text-muted-foreground sm:text-sm">
+                            © {new Date().getFullYear()} E-Chal. All rights reserved.
+                        </p>
+                        <p className="text-xs text-muted-foreground sm:text-sm">
+                            Premium chal · Bangladesh
                         </p>
                     </div>
                 </div>
@@ -153,4 +274,3 @@ export default function StoreLayout({ children }: StoreLayoutProps) {
         </div>
     );
 }
-

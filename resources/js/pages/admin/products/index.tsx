@@ -8,6 +8,7 @@ type Product = {
     name: string;
     slug: string;
     price: string;
+    cost_price: string | null;
     image: string | null;
     is_active: boolean;
     category: { name: string } | null;
@@ -95,7 +96,9 @@ export default function ProductsIndex({ products, categories, filters }: Product
                                     <tr>
                                         <th className="px-4 py-3 text-left text-sm font-medium">Product</th>
                                         <th className="px-4 py-3 text-left text-sm font-medium">Category</th>
-                                        <th className="px-4 py-3 text-left text-sm font-medium">Price</th>
+                                        <th className="px-4 py-3 text-right text-sm font-medium">Price</th>
+                                        <th className="px-4 py-3 text-right text-sm font-medium">Cost</th>
+                                        <th className="px-4 py-3 text-right text-sm font-medium">Profit margin</th>
                                         <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
                                         <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
                                     </tr>
@@ -103,7 +106,7 @@ export default function ProductsIndex({ products, categories, filters }: Product
                                 <tbody>
                                     {products.data.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                                            <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                                                 No products found
                                             </td>
                                         </tr>
@@ -130,8 +133,26 @@ export default function ProductsIndex({ products, categories, filters }: Product
                                                 <td className="px-4 py-3 text-sm">
                                                     {product.category?.name || '—'}
                                                 </td>
-                                                <td className="px-4 py-3 font-medium">
-                                                    ৳{parseFloat(product.price).toLocaleString()}
+                                                <td className="px-4 py-3 text-right font-medium">
+                                                    ৳{parseFloat(product.price).toLocaleString('en-BD', { minimumFractionDigits: 2 })}
+                                                </td>
+                                                <td className="px-4 py-3 text-right text-muted-foreground">
+                                                    {product.cost_price != null && product.cost_price !== ''
+                                                        ? `৳${parseFloat(product.cost_price).toLocaleString('en-BD', { minimumFractionDigits: 2 })}`
+                                                        : '—'}
+                                                </td>
+                                                <td className="px-4 py-3 text-right">
+                                                    {(() => {
+                                                        const price = parseFloat(product.price);
+                                                        const cost = product.cost_price != null && product.cost_price !== '' ? parseFloat(product.cost_price) : null;
+                                                        if (cost == null || price <= 0) return '—';
+                                                        const margin = ((price - cost) / price) * 100;
+                                                        return (
+                                                            <span className={margin >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                                                                {margin.toFixed(1)}%
+                                                            </span>
+                                                        );
+                                                    })()}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <span

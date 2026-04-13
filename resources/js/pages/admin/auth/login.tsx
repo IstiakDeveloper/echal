@@ -1,6 +1,7 @@
-import { Head, useForm } from '@inertiajs/react';
-import { LogIn } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { Home, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { home } from '@/routes';
 
 export default function AdminLogin() {
     const form = useForm({
@@ -19,6 +20,13 @@ export default function AdminLogin() {
             <Head title="Admin Login — E-Chal" />
             <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
                 <div className="w-full max-w-md">
+                    <Link
+                        href={home()}
+                        className="mb-6 flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                        <Home className="size-4" aria-hidden />
+                        Back to home
+                    </Link>
                     <div className="mb-8 text-center">
                         <h1 className="text-3xl font-bold">Admin Login</h1>
                         <p className="mt-2 text-muted-foreground">Sign in to access the admin panel</p>

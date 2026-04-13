@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\AccountingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -232,6 +233,8 @@ class CheckoutController extends Controller
                     'line_total' => $row['line_total'],
                 ]);
             }
+
+            (new AccountingService)->recordSale($order);
         });
 
         $request->session()->forget('cart');

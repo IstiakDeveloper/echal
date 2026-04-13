@@ -1,7 +1,8 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import type { SharedData } from '@/types';
+import { Package } from 'lucide-react';
 import StoreLayout from '@/layouts/store-layout';
 import { Button } from '@/components/ui/button';
+import type { SharedData } from '@/types';
 
 type CartItem = {
     id: number;
@@ -32,17 +33,18 @@ export default function StoreCart({
         <>
             <Head title="Cart — E-Chal" />
             <StoreLayout>
-                <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-                    <h1 className="text-2xl font-semibold text-foreground">Your cart</h1>
+                <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+                    <h1 className="text-2xl font-bold text-foreground">Your cart</h1>
                     <p className="mt-1 text-sm text-muted-foreground">
                         Review your selected rice before checkout.
                     </p>
 
                     {!hasItems ? (
-                        <div className="mt-8 rounded-xl border border-border bg-card p-10 text-center">
-                            <p className="text-lg font-semibold text-foreground">
-                                Your cart is empty
-                            </p>
+                        <div className="mt-8 rounded-xl border border-border bg-card p-12 text-center">
+                            <div className="mx-auto flex size-14 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                                <Package className="size-7" aria-hidden />
+                            </div>
+                            <p className="mt-4 font-semibold text-foreground">Your cart is empty</p>
                             <p className="mt-2 text-sm text-muted-foreground">
                                 Add Miniket, Chinigura, Basmati or other rice types to continue.
                             </p>
@@ -51,14 +53,14 @@ export default function StoreCart({
                             </Link>
                         </div>
                     ) : (
-                        <div className="mt-8 grid gap-8 lg:grid-cols-[2fr,1fr]">
+                        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr,20rem]">
                             <div className="space-y-4">
                                 {items.map((item) => (
                                     <div
                                         key={item.id}
                                         className="flex gap-4 rounded-xl border border-border bg-card p-4"
                                     >
-                                        <div className="h-20 w-20 overflow-hidden rounded-lg bg-muted">
+                                        <div className="size-20 shrink-0 overflow-hidden rounded-lg bg-muted">
                                             {item.image ? (
                                                 <img
                                                     src={item.image}
@@ -71,37 +73,31 @@ export default function StoreCart({
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="flex flex-1 flex-col justify-between">
-                                            <div>
-                                                <p className="text-xs font-medium text-primary">
-                                                    {item.category.name}
-                                                </p>
-                                                <p className="font-semibold text-foreground">
-                                                    {item.name}
-                                                </p>
-                                                <p className="mt-1 text-sm text-muted-foreground">
-                                                    Quantity: {item.quantity}
-                                                </p>
-                                            </div>
-                                            <div className="text-sm font-semibold text-foreground">
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-xs font-medium text-primary">
+                                                {item.category.name}
+                                            </p>
+                                            <p className="font-semibold text-foreground">{item.name}</p>
+                                            <p className="mt-1 text-sm text-muted-foreground">
+                                                Quantity: {item.quantity}
+                                            </p>
+                                            <p className="mt-2 text-sm font-semibold text-foreground">
                                                 ৳{item.line_total.toLocaleString()}
-                                            </div>
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                            <aside className="space-y-4 rounded-xl border border-border bg-card p-6">
-                                <h2 className="text-lg font-semibold text-foreground">
-                                    Order summary
-                                </h2>
-                                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                                    <span>Items total</span>
-                                    <span className="font-medium text-foreground">
+                            <aside className="rounded-xl border border-border bg-card p-5">
+                                <h2 className="text-lg font-semibold text-foreground">Order summary</h2>
+                                <div className="mt-4 flex items-center justify-between text-sm">
+                                    <span className="text-muted-foreground">Items total</span>
+                                    <span className="font-semibold text-foreground">
                                         ৳{total.toLocaleString()}
                                     </span>
                                 </div>
-                                <Link href="/checkout">
-                                    <Button className="mt-4 w-full">
+                                <Link href="/checkout" className="mt-4 block">
+                                    <Button className="w-full" size="lg">
                                         Proceed to checkout
                                     </Button>
                                 </Link>
