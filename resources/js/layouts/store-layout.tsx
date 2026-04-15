@@ -1,9 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
-import { Leaf, Package, ShoppingCart, User } from 'lucide-react';
+import { Leaf, Moon, Package, ShoppingCart, Sun, User } from 'lucide-react';
 import { Shield } from 'lucide-react';
+import { useEffect } from 'react';
 import CartDrawer from '@/components/store/cart-drawer';
+import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/cart-context';
+import { useAppearance } from '@/hooks/use-appearance';
 import { dashboard, home as homeRoute, register } from '@/routes';
 import { index as productsIndex } from '@/routes/products';
 import type { SharedData } from '@/types';
@@ -18,6 +20,7 @@ export default function StoreLayout({ children }: StoreLayoutProps) {
     };
     const { count: cartCount, setFromServer, drawerOpen, setDrawerOpen } = useCart();
     const isAdmin = Boolean(auth?.user && (auth.user.role === 'admin' || auth.user.role === 'superadmin'));
+    const { resolvedAppearance, updateAppearance } = useAppearance();
 
     useEffect(() => {
         if (serverCart != null) {
@@ -26,6 +29,7 @@ export default function StoreLayout({ children }: StoreLayoutProps) {
     }, [serverCart?.count, serverCart != null ? JSON.stringify(serverCart.items) : null, setFromServer]);
 
     const drawerWidth = 'min(90vw, 22rem)';
+    const toggleTheme = () => updateAppearance(resolvedAppearance === 'dark' ? 'light' : 'dark');
 
     return (
         <div
@@ -71,6 +75,17 @@ export default function StoreLayout({ children }: StoreLayoutProps) {
                                 <span className="hidden sm:inline">All rice</span>
                             </span>
                         </Link>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={toggleTheme}
+                            className="text-muted-foreground hover:text-foreground"
+                            title={resolvedAppearance === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                        >
+                            {resolvedAppearance === 'dark' ? <Sun aria-hidden /> : <Moon aria-hidden />}
+                            <span className="sr-only">{resolvedAppearance === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}</span>
+                        </Button>
                         <button
                             type="button"
                             onClick={() => setDrawerOpen(true)}

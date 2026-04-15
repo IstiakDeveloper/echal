@@ -1,7 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Package } from 'lucide-react';
-import StoreLayout from '@/layouts/store-layout';
 import { Button } from '@/components/ui/button';
+import StoreLayout from '@/layouts/store-layout';
 import type { SharedData } from '@/types';
 
 type CartItem = {

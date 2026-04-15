@@ -1,9 +1,10 @@
-import { Link, router, useForm, usePage } from '@inertiajs/react';
-import { Home, Package, ShoppingBag, User, LogOut } from 'lucide-react';
+import { Link, useForm, usePage } from '@inertiajs/react';
+import { Home, LogOut, Moon, Package, ShoppingBag, Sun, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAppearance } from '@/hooks/use-appearance';
 import { home as homeRoute } from '@/routes';
-import { index as productsIndex } from '@/routes/products';
 import { dashboard } from '@/routes';
+import { index as productsIndex } from '@/routes/products';
 import type { SharedData } from '@/types';
 
 type CustomerLayoutProps = {
@@ -13,10 +14,13 @@ type CustomerLayoutProps = {
 export default function CustomerLayout({ children }: CustomerLayoutProps) {
     const { auth } = usePage<SharedData>().props;
     const logoutForm = useForm({});
+    const { resolvedAppearance, updateAppearance } = useAppearance();
 
     const handleLogout = () => {
         logoutForm.post('/logout');
     };
+
+    const toggleTheme = () => updateAppearance(resolvedAppearance === 'dark' ? 'light' : 'dark');
 
     return (
         <div className="min-h-screen bg-background">
@@ -45,6 +49,17 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                             <ShoppingBag className="size-4" aria-hidden />
                             <span className="hidden sm:inline">Shop</span>
                         </Link>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={toggleTheme}
+                            className="gap-2 text-muted-foreground hover:text-foreground"
+                            title={resolvedAppearance === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                        >
+                            {resolvedAppearance === 'dark' ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
+                            <span className="hidden sm:inline">{resolvedAppearance === 'dark' ? 'Light' : 'Dark'}</span>
+                        </Button>
                         <Link
                             href={dashboard.url()}
                             className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

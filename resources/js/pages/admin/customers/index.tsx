@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { Search, Eye } from 'lucide-react';
-import AdminLayout from '@/layouts/admin-layout';
 import { Button } from '@/components/ui/button';
+import AdminLayout from '@/layouts/admin-layout';
 
 type Customer = {
     id: number;

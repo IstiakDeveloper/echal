@@ -1,8 +1,8 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { Package, Search } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/store/product-card';
+import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/cart-context';
 import StoreLayout from '@/layouts/store-layout';
 import { index as productsIndex } from '@/routes/products';

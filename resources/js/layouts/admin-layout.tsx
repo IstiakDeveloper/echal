@@ -1,5 +1,4 @@
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
 import {
     BarChart3,
     Box,
@@ -12,10 +11,14 @@ import {
     Package,
     ShoppingBag,
     Users,
+    Moon,
+    Sun,
 } from 'lucide-react';
-import { home } from '@/routes';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useAppearance } from '@/hooks/use-appearance';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { home } from '@/routes';
 import type { SharedData } from '@/types';
 
 type AdminLayoutProps = {
@@ -35,22 +38,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         SharedData & { unreadOrdersCount?: number; accountingCashBalance?: number | null; flash?: { success?: string; error?: string } }
    >().props;
     const { currentUrl } = useCurrentUrl();
-    const [dismissedFlash, setDismissedFlash] = useState(false);
-    const showFlash = (flash?.success || flash?.error) && !dismissedFlash;
-
-    useEffect(() => {
-        setDismissedFlash(false);
-    }, [flash?.success, flash?.error]);
+    const flashKey = `${flash?.success ?? ''}|${flash?.error ?? ''}`;
+    const [dismissedFlashKey, setDismissedFlashKey] = useState<string | null>(null);
+    const showFlash = Boolean((flash?.success || flash?.error) && dismissedFlashKey !== flashKey);
+    const { resolvedAppearance, updateAppearance } = useAppearance();
 
     useEffect(() => {
         if (!showFlash) return;
-        const t = setTimeout(() => setDismissedFlash(true), 5000);
+        const t = setTimeout(() => setDismissedFlashKey(flashKey), 5000);
         return () => clearTimeout(t);
-    }, [showFlash]);
+    }, [flashKey, showFlash]);
     const logoutForm = useForm({});
 
     const handleLogout = () => {
         logoutForm.post('/admin/logout');
+    };
+
+    const toggleTheme = () => {
+        updateAppearance(resolvedAppearance === 'dark' ? 'light' : 'dark');
     };
 
     const isAccountingSection = currentUrl.startsWith('/admin/accounting');
@@ -101,7 +106,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     }`}
                 >
                     <span>{flash?.error ?? flash?.success}</span>
-                    <button type="button" onClick={() => setDismissedFlash(true)} className="shrink-0 font-medium underline opacity-80 hover:opacity-100">
+                    <button type="button" onClick={() => setDismissedFlashKey(flashKey)} className="shrink-0 font-medium underline opacity-80 hover:opacity-100">
                         Dismiss
                     </button>
                 </div>
@@ -200,6 +205,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                             <div className="font-medium text-foreground">{auth?.user?.name}</div>
                             <div>{auth?.user?.email}</div>
                         </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="mb-2 w-full justify-start"
+                            onClick={toggleTheme}
+                        >
+                            {resolvedAppearance === 'dark' ? <Sun className="mr-2 size-4" /> : <Moon className="mr-2 size-4" />}
+                            {resolvedAppearance === 'dark' ? 'Light' : 'Dark'}
+                        </Button>
                         <Button
                             variant="outline"
                             size="sm"

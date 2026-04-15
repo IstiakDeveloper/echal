@@ -1,6 +1,6 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
 import { Leaf, Smartphone } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { SharedData } from '@/types';
 

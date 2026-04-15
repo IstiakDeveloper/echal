@@ -1,12 +1,12 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ArrowRight, Leaf, Package, ShoppingBag, UserPlus } from 'lucide-react';
 import { useCallback } from 'react';
-import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/store/product-card';
+import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/cart-context';
 import StoreLayout from '@/layouts/store-layout';
-import { index as productsIndex } from '@/routes/products';
 import { register } from '@/routes';
+import { index as productsIndex } from '@/routes/products';
 import type { SharedData } from '@/types';
 
 type Category = {

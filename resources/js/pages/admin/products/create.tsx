@@ -1,8 +1,8 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Upload, X } from 'lucide-react';
 import { useState, useRef } from 'react';
-import AdminLayout from '@/layouts/admin-layout';
 import { Button } from '@/components/ui/button';
+import AdminLayout from '@/layouts/admin-layout';
 
 type ProductCreateProps = {
     categories: Array<{ id: number; name: string }>;

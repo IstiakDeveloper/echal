@@ -1,9 +1,9 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Plus, Trash2, Edit } from 'lucide-react';
 import { useState } from 'react';
-import AdminLayout from '@/layouts/admin-layout';
 import { Button } from '@/components/ui/button';
 import bangladeshAddresses from '@/data/bangladeshAddresses.json';
+import AdminLayout from '@/layouts/admin-layout';
 
 type DeliveryAmount = {
     id: number;

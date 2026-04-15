@@ -1,7 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
-import AdminLayout from '@/layouts/admin-layout';
 import { Button } from '@/components/ui/button';
+import AdminLayout from '@/layouts/admin-layout';
 
 type Category = {
     id: number;
