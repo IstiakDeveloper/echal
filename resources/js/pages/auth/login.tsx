@@ -1,4 +1,4 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, Link } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
-import { register } from '@/routes';
+import { home, register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 
@@ -95,6 +95,14 @@ export default function Login({
                             >
                                 {processing && <Spinner />}
                                 Log in
+                            </Button>
+
+                            <Button asChild variant="outline" className="w-full" tabIndex={6}>
+                                <Link href={home()}>Home</Link>
+                            </Button>
+
+                            <Button asChild variant="secondary" className="w-full" tabIndex={7}>
+                                <Link href="/admin/login">Admin Login</Link>
                             </Button>
                         </div>
 

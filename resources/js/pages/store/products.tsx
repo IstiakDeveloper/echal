@@ -1,4 +1,4 @@
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Package, Search } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import ProductCard from '@/components/store/product-card';
@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/cart-context';
 import StoreLayout from '@/layouts/store-layout';
 import { index as productsIndex } from '@/routes/products';
-import type { SharedData } from '@/types';
 
 type Category = {
     id: number;
@@ -36,7 +35,7 @@ export default function StoreProducts({
     activeCategory?: string;
     search?: string;
 }) {
-    const { getQuantity, addToCart, setQuantity, openDrawer, setFromServer } = useCart();
+    const { getQuantity, addToCart, setQuantity, setFromServer } = useCart();
     const [searchTerm, setSearchTerm] = useState(search ?? '');
 
     const handleBuyNow = useCallback(
@@ -45,23 +44,32 @@ export default function StoreProducts({
             formData.append('product_id', String(productId));
             formData.append(
                 '_token',
-                (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)
-                    ?.content ?? ''
+                (
+                    document.querySelector(
+                        'meta[name="csrf-token"]',
+                    ) as HTMLMetaElement | null
+                )?.content ?? '',
             );
             const res = await fetch('/cart/buy-now', {
                 method: 'POST',
                 body: formData,
                 credentials: 'same-origin',
-                headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
             });
             const data = (await res.json()) as {
-                cart?: { count: number; items: Record<string, { quantity: number }> };
+                cart?: {
+                    count: number;
+                    items: Record<string, { quantity: number }>;
+                };
                 redirect?: string;
             };
             if (data.cart) setFromServer(data.cart.count, data.cart.items);
             if (data.redirect) router.visit(data.redirect);
         },
-        [setFromServer]
+        [setFromServer],
     );
 
     const applyFilters = useCallback(
@@ -72,10 +80,10 @@ export default function StoreProducts({
                     category: categorySlug || undefined,
                     search: term || undefined,
                 },
-                { preserveScroll: true, preserveState: true }
+                { preserveScroll: true, preserveState: true },
             );
         },
-        []
+        [],
     );
 
     const handleSubmitSearch = useCallback(
@@ -83,14 +91,14 @@ export default function StoreProducts({
             e.preventDefault();
             applyFilters(activeCategory || null, searchTerm.trim());
         },
-        [activeCategory, searchTerm, applyFilters]
+        [activeCategory, searchTerm, applyFilters],
     );
 
     const handleSelectCategory = useCallback(
         (slug: string | null) => {
             applyFilters(slug, searchTerm.trim());
         },
-        [applyFilters, searchTerm]
+        [applyFilters, searchTerm],
     );
 
     return (
@@ -99,7 +107,9 @@ export default function StoreProducts({
             <StoreLayout>
                 <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
                     <div className="mb-8">
-                        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Products</h1>
+                        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
+                            Products
+                        </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
                             Browse all rice types and pack sizes.
                         </p>
@@ -114,12 +124,17 @@ export default function StoreProducts({
                                 Search rice
                             </label>
                             <div className="flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
-                                <Search className="size-4 text-muted-foreground" aria-hidden />
+                                <Search
+                                    className="size-4 text-muted-foreground"
+                                    aria-hidden
+                                />
                                 <input
                                     id="search"
                                     type="search"
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) =>
+                                        setSearchTerm(e.target.value)
+                                    }
                                     placeholder="Miniket, Chinigura, Basmati…"
                                     className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                                 />
@@ -162,7 +177,9 @@ export default function StoreProducts({
                                     <button
                                         key={cat.id}
                                         type="button"
-                                        onClick={() => handleSelectCategory(cat.slug)}
+                                        onClick={() =>
+                                            handleSelectCategory(cat.slug)
+                                        }
                                         className={
                                             cat.slug === activeCategory
                                                 ? 'rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground'
@@ -178,13 +195,12 @@ export default function StoreProducts({
 
                     {products.length === 0 ? (
                         <div className="rounded-xl border border-border bg-card p-12 text-center">
-                            <Package className="mx-auto size-12 text-muted-foreground" aria-hidden />
-                            <p className="mt-4 font-semibold text-foreground">No products yet</p>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                Run the seeder to add demo categories and products.
-                            </p>
-                            <p className="mt-4 text-xs text-muted-foreground">
-                                <code className="rounded bg-muted px-2 py-1">php artisan db:seed</code>
+                            <Package
+                                className="mx-auto size-12 text-muted-foreground"
+                                aria-hidden
+                            />
+                            <p className="mt-4 font-semibold text-foreground">
+                                No products yet
                             </p>
                         </div>
                     ) : (
@@ -196,7 +212,6 @@ export default function StoreProducts({
                                     quantityInCart={getQuantity(product.id)}
                                     onAddToCart={addToCart}
                                     onSetQuantity={setQuantity}
-                                    onOpenDrawer={openDrawer}
                                     onBuy={handleBuyNow}
                                 />
                             ))}

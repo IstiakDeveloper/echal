@@ -1,5 +1,12 @@
 import type { ReactNode } from 'react';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 
 const CART_STORAGE_KEY = 'e-chal-cart';
 
@@ -54,6 +61,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const [isPending, setIsPending] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
 
+    const syncTimerRef = useRef<number | null>(null);
+    const desiredRef = useRef<Record<string, number>>({});
+
     const openDrawer = useCallback(() => setDrawerOpen(true), []);
 
     const setFromServer = useCallback((count: number, items: CartItems) => {
@@ -61,26 +71,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
         saveToStorage(items);
     }, []);
 
-    const persistAndSync = useCallback(
-        async (productId: number, quantity: number) => {
-            const key = String(productId);
-            const nextItems = { ...state.items };
-            if (quantity <= 0) {
-                delete nextItems[key];
-            } else {
-                nextItems[key] = { quantity };
-            }
-            const nextCount = countFromItems(nextItems);
+    const flushSync = useCallback(async () => {
+        const entries = Object.entries(desiredRef.current);
+        desiredRef.current = {};
 
-            setState({ count: nextCount, items: nextItems });
-            saveToStorage(nextItems);
-            setIsPending(true);
+        if (entries.length === 0) return;
 
-            try {
+        setIsPending(true);
+
+        try {
+            const csrf =
+                (
+                    document.querySelector(
+                        'meta[name="csrf-token"]',
+                    ) as HTMLMetaElement | null
+                )?.content ?? '';
+
+            for (const [productId, quantity] of entries) {
                 const formData = new FormData();
-                formData.append('product_id', String(productId));
+                formData.append('product_id', productId);
                 formData.append('quantity', String(quantity));
-                formData.append('_token', (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content ?? '');
+                formData.append('_token', csrf);
 
                 const res = await fetch('/cart', {
                     method: 'POST',
@@ -92,42 +103,85 @@ export function CartProvider({ children }: { children: ReactNode }) {
                     },
                 });
 
-                if (res.ok) {
-                    const data = (await res.json()) as { cart?: { count: number; items: CartItems } };
-                    if (data.cart) {
-                        setState({ count: data.cart.count, items: data.cart.items });
-                        saveToStorage(data.cart.items);
-                    }
+                if (!res.ok) continue;
+
+                const data = (await res.json()) as {
+                    cart?: { count: number; items: CartItems };
+                };
+                if (data.cart) {
+                    setState({
+                        count: data.cart.count,
+                        items: data.cart.items,
+                    });
+                    saveToStorage(data.cart.items);
                 }
-            } catch {
-                // keep optimistic state
-            } finally {
-                setIsPending(false);
             }
+        } catch {
+            // keep optimistic state
+        } finally {
+            setIsPending(false);
+        }
+    }, []);
+
+    const scheduleSync = useCallback(() => {
+        if (typeof window === 'undefined') return;
+        if (syncTimerRef.current != null) {
+            window.clearTimeout(syncTimerRef.current);
+        }
+
+        syncTimerRef.current = window.setTimeout(() => {
+            syncTimerRef.current = null;
+            flushSync();
+        }, 200);
+    }, [flushSync]);
+
+    const persistAndSync = useCallback(
+        (productId: number, quantity: number) => {
+            const key = String(productId);
+            let snapshotItems: CartItems = {};
+
+            setState((prev) => {
+                const nextItems = { ...prev.items };
+                if (quantity <= 0) {
+                    delete nextItems[key];
+                } else {
+                    nextItems[key] = { quantity };
+                }
+                snapshotItems = nextItems;
+                return { items: nextItems, count: countFromItems(nextItems) };
+            });
+
+            saveToStorage(snapshotItems);
+            desiredRef.current[key] = quantity;
+            scheduleSync();
         },
-        [state.items]
+        [scheduleSync],
     );
 
     const addToCart = useCallback(
         (productId: number) => {
-            const current = state.items[String(productId)]?.quantity ?? 0;
+            const key = String(productId);
+            const current =
+                desiredRef.current[key] ??
+                loadFromStorage()[key]?.quantity ??
+                0;
             persistAndSync(productId, current + 1);
         },
-        [state.items, persistAndSync]
+        [persistAndSync],
     );
 
     const setQuantity = useCallback(
         (productId: number, quantity: number) => {
             persistAndSync(productId, quantity);
         },
-        [persistAndSync]
+        [persistAndSync],
     );
 
     const getQuantity = useCallback(
         (productId: number): number => {
             return state.items[String(productId)]?.quantity ?? 0;
         },
-        [state.items]
+        [state.items],
     );
 
     const value = useMemo<CartContextValue>(
@@ -142,10 +196,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
             setDrawerOpen,
             openDrawer,
         }),
-        [state, setFromServer, addToCart, setQuantity, getQuantity, isPending, drawerOpen, openDrawer]
+        [
+            state,
+            setFromServer,
+            addToCart,
+            setQuantity,
+            getQuantity,
+            isPending,
+            drawerOpen,
+            openDrawer,
+        ],
     );
 
-    return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+    return (
+        <CartContext.Provider value={value}>{children}</CartContext.Provider>
+    );
 }
 
 export function useCart(): CartContextValue {

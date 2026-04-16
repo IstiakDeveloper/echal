@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { BarChart3, Package, ShoppingBag, Users, DollarSign, TrendingUp } from 'lucide-react';
+import { Package, ShoppingBag, Users, DollarSign } from 'lucide-react';
 import AdminLayout from '@/layouts/admin-layout';
 
 type DashboardProps = {
@@ -25,7 +25,6 @@ export default function AdminDashboard({
     stats,
     recentOrders,
     ordersByStatus,
-    revenueByMonth,
 }: DashboardProps) {
     const formatCurrency = (value: number) => `৳${value.toLocaleString()}`;
 
@@ -75,7 +74,9 @@ export default function AdminDashboard({
                 <div className="space-y-6">
                     <div>
                         <h1 className="text-3xl font-bold">Dashboard</h1>
-                        <p className="mt-1 text-muted-foreground">Overview of your store</p>
+                        <p className="mt-1 text-muted-foreground">
+                            Overview of your store
+                        </p>
                     </div>
 
                     {/* Stats Grid */}
@@ -89,11 +90,19 @@ export default function AdminDashboard({
                                 >
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm text-muted-foreground">{stat.title}</p>
-                                            <p className="mt-1 text-2xl font-bold">{stat.value}</p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {stat.title}
+                                            </p>
+                                            <p className="mt-1 text-2xl font-bold">
+                                                {stat.value}
+                                            </p>
                                         </div>
-                                        <div className={`rounded-lg p-3 ${stat.bgColor}`}>
-                                            <Icon className={`size-6 ${stat.color}`} />
+                                        <div
+                                            className={`rounded-lg p-3 ${stat.bgColor}`}
+                                        >
+                                            <Icon
+                                                className={`size-6 ${stat.color}`}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -106,7 +115,9 @@ export default function AdminDashboard({
                         {/* Recent Orders */}
                         <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
                             <div className="mb-4 flex items-center justify-between">
-                                <h2 className="text-lg font-semibold">Recent Orders</h2>
+                                <h2 className="text-lg font-semibold">
+                                    Recent Orders
+                                </h2>
                                 <Link
                                     href="/admin/orders"
                                     className="text-sm text-primary hover:underline"
@@ -133,19 +144,26 @@ export default function AdminDashboard({
                                                     Order #{order.id}
                                                 </Link>
                                                 <p className="text-sm text-muted-foreground">
-                                                    {order.user?.name || order.user?.email || 'Guest'}
+                                                    {order.user?.name ||
+                                                        order.user?.email ||
+                                                        'Guest'}
                                                 </p>
                                             </div>
                                             <div className="text-right">
                                                 <span
                                                     className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
-                                                        statusColors[order.status] || 'bg-gray-100 text-gray-800'
+                                                        statusColors[
+                                                            order.status
+                                                        ] ||
+                                                        'bg-gray-100 text-gray-800'
                                                     }`}
                                                 >
                                                     {order.status}
                                                 </span>
                                                 <p className="mt-1 text-sm font-semibold">
-                                                    {formatCurrency(parseFloat(order.total))}
+                                                    {formatCurrency(
+                                                        parseFloat(order.total),
+                                                    )}
                                                 </p>
                                             </div>
                                         </div>
@@ -156,14 +174,25 @@ export default function AdminDashboard({
 
                         {/* Orders by Status */}
                         <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
-                            <h2 className="mb-4 text-lg font-semibold">Orders by Status</h2>
+                            <h2 className="mb-4 text-lg font-semibold">
+                                Orders by Status
+                            </h2>
                             <div className="space-y-3">
-                                {Object.entries(ordersByStatus).map(([status, count]) => (
-                                    <div key={status} className="flex items-center justify-between">
-                                        <span className="capitalize text-muted-foreground">{status}</span>
-                                        <span className="font-semibold">{count}</span>
-                                    </div>
-                                ))}
+                                {Object.entries(ordersByStatus).map(
+                                    ([status, count]) => (
+                                        <div
+                                            key={status}
+                                            className="flex items-center justify-between"
+                                        >
+                                            <span className="text-muted-foreground capitalize">
+                                                {status}
+                                            </span>
+                                            <span className="font-semibold">
+                                                {count}
+                                            </span>
+                                        </div>
+                                    ),
+                                )}
                             </div>
                         </div>
                     </div>

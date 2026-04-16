@@ -31,8 +31,12 @@ export default function CategoryShow({ category }: CategoryShowProps) {
                                 </Button>
                             </Link>
                             <div>
-                                <h1 className="text-3xl font-bold">{category.name}</h1>
-                                <p className="mt-1 text-muted-foreground">{category.slug}</p>
+                                <h1 className="text-3xl font-bold">
+                                    {category.name}
+                                </h1>
+                                <p className="mt-1 text-muted-foreground">
+                                    {category.slug}
+                                </p>
                             </div>
                         </div>
                         <Link href={`/admin/categories/${category.id}/edit`}>
@@ -45,16 +49,24 @@ export default function CategoryShow({ category }: CategoryShowProps) {
 
                     <div className="space-y-4">
                         <div>
-                            <label className="text-sm text-muted-foreground">Products</label>
-                            <p className="font-medium">{category.products_count}</p>
+                            <label className="text-sm text-muted-foreground">
+                                Products
+                            </label>
+                            <p className="font-medium">
+                                {category.products_count}
+                            </p>
                         </div>
                         <div>
-                            <label className="text-sm text-muted-foreground">Sort Order</label>
+                            <label className="text-sm text-muted-foreground">
+                                Sort Order
+                            </label>
                             <p className="font-medium">{category.sort_order}</p>
                         </div>
                         {category.description && (
                             <div>
-                                <label className="text-sm text-muted-foreground">Description</label>
+                                <label className="text-sm text-muted-foreground">
+                                    Description
+                                </label>
                                 <p className="mt-1">{category.description}</p>
                             </div>
                         )}

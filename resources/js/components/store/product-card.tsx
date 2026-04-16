@@ -17,6 +17,7 @@ export type ProductCardProduct = {
     price: string;
     image: string | null;
     images?: string[] | null;
+    stock?: number | null;
     category: { id: number; name: string; slug: string };
 };
 
@@ -38,13 +39,18 @@ export default function ProductCard({
     onBuy,
 }: ProductCardProps) {
     const [open, setOpen] = useState(false);
+    const stock = Number(product.stock ?? 0);
+    const isOutOfStock = stock <= 0;
+    const isMaxedInCart = !isOutOfStock && quantityInCart >= stock;
 
     const handleAddToCart = () => {
+        if (isOutOfStock || isMaxedInCart) return;
         onAddToCart(product.id);
         onOpenDrawer?.();
     };
 
     const handleBuyNow = () => {
+        if (isOutOfStock) return;
         onBuy?.(product.id);
     };
 
@@ -68,15 +74,18 @@ export default function ProductCard({
                     )}
                 </div>
                 <div className="p-4">
-                    <p className="text-xs font-medium uppercase tracking-wider text-primary">
+                    <p className="text-xs font-medium tracking-wider text-primary uppercase">
                         {product.category.name}
                     </p>
-                    <h2 className="mt-1 font-semibold text-foreground">{product.name}</h2>
-                    {product.description != null && product.description !== '' && (
-                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                            {product.description}
-                        </p>
-                    )}
+                    <h2 className="mt-1 font-semibold text-foreground">
+                        {product.name}
+                    </h2>
+                    {product.description != null &&
+                        product.description !== '' && (
+                            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                                {product.description}
+                            </p>
+                        )}
                     <div
                         className="mt-4 flex items-center justify-between gap-2"
                         onClick={(e) => e.stopPropagation()}
@@ -93,39 +102,55 @@ export default function ProductCard({
                                     onClick={() =>
                                         onSetQuantity(
                                             product.id,
-                                            Math.max(quantityInCart - 1, 0)
+                                            Math.max(quantityInCart - 1, 0),
                                         )
                                     }
                                 >
                                     <Minus className="size-3.5" aria-hidden />
                                 </Button>
-                                <span className="min-w-[1.25rem] text-center text-sm font-medium">
+                                <span className="min-w-5 text-center text-sm font-medium">
                                     {quantityInCart}
                                 </span>
                                 <Button
                                     size="icon"
                                     variant="ghost"
                                     className="size-7"
+                                    disabled={isOutOfStock || isMaxedInCart}
                                     onClick={() =>
-                                        onSetQuantity(product.id, quantityInCart + 1)
+                                        onSetQuantity(
+                                            product.id,
+                                            quantityInCart + 1,
+                                        )
                                     }
                                 >
                                     <Plus className="size-3.5" aria-hidden />
                                 </Button>
                             </div>
                         ) : (
-                            <Button size="sm" className="gap-1.5" onClick={handleAddToCart}>
-                                <ShoppingCart className="size-3.5" aria-hidden />
-                                Add
+                            <Button
+                                size="sm"
+                                className="gap-1.5"
+                                disabled={isOutOfStock}
+                                onClick={handleAddToCart}
+                            >
+                                <ShoppingCart
+                                    className="size-3.5"
+                                    aria-hidden
+                                />
+                                {isOutOfStock ? 'Out of stock' : 'Add'}
                             </Button>
                         )}
                     </div>
                     {onBuy && (
-                        <div onClick={(e) => e.stopPropagation()} className="mt-2">
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="mt-2"
+                        >
                             <Button
                                 size="sm"
                                 variant="outline"
                                 className="w-full gap-1.5"
+                                disabled={isOutOfStock}
                                 onClick={handleBuyNow}
                             >
                                 <Zap className="size-3.5" aria-hidden />
@@ -143,7 +168,11 @@ export default function ProductCard({
                             <div className="aspect-square w-full overflow-hidden rounded-t-xl bg-muted sm:rounded-l-xl sm:rounded-tr-none">
                                 {product.images?.length ? (
                                     <img
-                                        src={product.images[0] ?? product.image ?? ''}
+                                        src={
+                                            product.images[0] ??
+                                            product.image ??
+                                            ''
+                                        }
                                         alt={product.name}
                                         className="h-full w-full object-cover"
                                     />
@@ -155,7 +184,10 @@ export default function ProductCard({
                                     />
                                 ) : (
                                     <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                                        <Package className="size-16" aria-hidden />
+                                        <Package
+                                            className="size-16"
+                                            aria-hidden
+                                        />
                                     </div>
                                 )}
                             </div>
@@ -178,7 +210,7 @@ export default function ProductCard({
                         </div>
                         <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
                             <DialogHeader className="text-left">
-                                <DialogDescription className="text-xs font-medium uppercase tracking-wider text-primary">
+                                <DialogDescription className="text-xs font-medium tracking-wider text-primary uppercase">
                                     {product.category.name}
                                 </DialogDescription>
                                 <DialogTitle className="text-lg font-semibold">
@@ -203,32 +235,50 @@ export default function ProductCard({
                                             onClick={() =>
                                                 onSetQuantity(
                                                     product.id,
-                                                    Math.max(quantityInCart - 1, 0)
+                                                    Math.max(
+                                                        quantityInCart - 1,
+                                                        0,
+                                                    ),
                                                 )
                                             }
                                         >
-                                            <Minus className="size-3.5" aria-hidden />
+                                            <Minus
+                                                className="size-3.5"
+                                                aria-hidden
+                                            />
                                         </Button>
-                                        <span className="min-w-[1.5rem] text-center text-sm font-medium">
+                                        <span className="min-w-6 text-center text-sm font-medium">
                                             {quantityInCart}
                                         </span>
                                         <Button
                                             size="icon"
                                             variant="ghost"
                                             className="size-7"
+                                            disabled={isOutOfStock || isMaxedInCart}
                                             onClick={() =>
                                                 onSetQuantity(
                                                     product.id,
-                                                    quantityInCart + 1
+                                                    quantityInCart + 1,
                                                 )
                                             }
                                         >
-                                            <Plus className="size-3.5" aria-hidden />
+                                            <Plus
+                                                className="size-3.5"
+                                                aria-hidden
+                                            />
                                         </Button>
                                     </div>
                                 ) : (
-                                    <Button size="sm" className="gap-1.5" onClick={handleAddToCart}>
-                                        <ShoppingCart className="size-3.5" aria-hidden />
+                                    <Button
+                                        size="sm"
+                                        className="gap-1.5"
+                                        disabled={isOutOfStock}
+                                        onClick={handleAddToCart}
+                                    >
+                                        <ShoppingCart
+                                            className="size-3.5"
+                                            aria-hidden
+                                        />
                                         Add to cart
                                     </Button>
                                 )}
@@ -237,6 +287,7 @@ export default function ProductCard({
                                         size="sm"
                                         variant="outline"
                                         className="gap-1.5"
+                                        disabled={isOutOfStock}
                                         onClick={handleBuyNow}
                                     >
                                         <Zap className="size-3.5" aria-hidden />

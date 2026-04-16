@@ -7,10 +7,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\AccountingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -153,45 +151,6 @@ class CheckoutController extends Controller
             'phone' => ['required', 'string', 'max:20'],
         ]);
 
-        $productIds = array_map('intval', array_keys($rawItems));
-
-        $products = Product::query()
-            ->whereIn('id', $productIds)
-            ->get()
-            ->keyBy('id');
-
-        $items = collect($rawItems)
-            ->map(function (array $item, string $productId) use ($products): ?array {
-                $product = $products->get((int) $productId);
-
-                if ($product === null) {
-                    return null;
-                }
-
-                $quantity = (int) $item['quantity'];
-                $lineTotal = (float) $product->price * $quantity;
-
-                return [
-                    'product' => $product,
-                    'quantity' => $quantity,
-                    'line_total' => $lineTotal,
-                ];
-            })
-            ->filter()
-            ->values();
-
-        if ($items->isEmpty()) {
-            return redirect()->route('cart.index');
-        }
-
-        $subtotal = $items->sum(
-            fn (array $row): float => (float) $row['line_total']
-        );
-
-        // TODO: when admin UI for delivery amount is ready, compute based on division/district/upazila.
-        $deliveryAmount = 0.0;
-        $total = $subtotal + $deliveryAmount;
-
         $phone = $validated['phone'];
 
         $email = $phone.'@e-chal.local';
@@ -204,38 +163,93 @@ class CheckoutController extends Controller
             ]
         );
 
-        $order = null;
+        try {
+            /** @var \App\Models\Order $order */
+            $order = DB::transaction(function () use ($rawItems, $user, $validated): Order {
+                $productIds = array_map('intval', array_keys($rawItems));
 
-        DB::transaction(function () use (&$order, $user, $validated, $subtotal, $deliveryAmount, $total, $items): void {
-            $order = Order::create([
-                'user_id' => $user->id,
-                'phone' => $validated['phone'],
-                'division' => $validated['division'],
-                'district' => $validated['district'],
-                'upazila' => $validated['upazila'],
-                'address' => $validated['address'],
-                'subtotal' => $subtotal,
-                'delivery_amount' => $deliveryAmount,
-                'total' => $total,
-                'status' => 'pending',
-            ]);
+                $products = Product::query()
+                    ->whereIn('id', $productIds)
+                    ->lockForUpdate()
+                    ->get()
+                    ->keyBy('id');
 
-            foreach ($items as $row) {
-                /** @var \App\Models\Product $product */
-                $product = $row['product'];
+                $items = collect($rawItems)
+                    ->map(function (array $item, string $productId) use ($products): ?array {
+                        $product = $products->get((int) $productId);
 
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'name' => $product->name,
-                    'price' => $product->price,
-                    'quantity' => $row['quantity'],
-                    'line_total' => $row['line_total'],
+                        if ($product === null) {
+                            return null;
+                        }
+
+                        $quantity = (int) $item['quantity'];
+                        if ($quantity <= 0 || (int) $product->stock < $quantity) {
+                            return null;
+                        }
+                        $lineTotal = (float) $product->price * $quantity;
+
+                        return [
+                            'product' => $product,
+                            'quantity' => $quantity,
+                            'line_total' => $lineTotal,
+                        ];
+                    })
+                    ->filter()
+                    ->values();
+
+                if ($items->isEmpty()) {
+                    throw new \RuntimeException('Some items are out of stock. Please update your cart.');
+                }
+
+                $subtotal = $items->sum(
+                    fn (array $row): float => (float) $row['line_total']
+                );
+
+                // TODO: when admin UI for delivery amount is ready, compute based on division/district/upazila.
+                $deliveryAmount = 0.0;
+                $total = $subtotal + $deliveryAmount;
+
+                $order = Order::create([
+                    'user_id' => $user->id,
+                    'phone' => $validated['phone'],
+                    'division' => $validated['division'],
+                    'district' => $validated['district'],
+                    'upazila' => $validated['upazila'],
+                    'address' => $validated['address'],
+                    'subtotal' => $subtotal,
+                    'delivery_amount' => $deliveryAmount,
+                    'total' => $total,
+                    'status' => 'pending',
                 ]);
-            }
 
-            (new AccountingService)->recordSale($order);
-        });
+                foreach ($items as $row) {
+                    /** @var \App\Models\Product $product */
+                    $product = $row['product'];
+                    $quantity = (int) $row['quantity'];
+
+                    if ((int) $product->stock < $quantity) {
+                        throw new \RuntimeException('Some items are out of stock. Please update your cart.');
+                    }
+
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'name' => $product->name,
+                        'price' => $product->price,
+                        'quantity' => $quantity,
+                        'line_total' => $row['line_total'],
+                    ]);
+
+                    $product->decrement('stock', $quantity);
+                }
+
+                return $order;
+            });
+        } catch (\Throwable) {
+            return redirect()
+                ->route('cart.index')
+                ->with('error', 'Some items are out of stock. Please update your cart.');
+        }
 
         $request->session()->forget('cart');
 
@@ -243,7 +257,7 @@ class CheckoutController extends Controller
             ->route('checkout.complete')
             ->with([
                 'order_placed' => true,
-                'order_id' => $order?->id,
+                'order_id' => $order->id,
                 'order_phone' => $validated['phone'],
             ]);
     }
@@ -260,4 +274,3 @@ class CheckoutController extends Controller
         ]);
     }
 }
-

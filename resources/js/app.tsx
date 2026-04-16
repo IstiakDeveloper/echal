@@ -6,10 +6,12 @@ import { CartProvider } from '@/contexts/cart-context';
 import '../css/app.css';
 import { initializeTheme } from './hooks/use-appearance';
 import { initFirebase } from './lib/firebase';
+import { registerServiceWorker } from './lib/pwa';
 
 const appName = import.meta.env.VITE_APP_NAME ?? 'E-Chal';
 
 initFirebase();
+registerServiceWorker();
 
 createInertiaApp({
     title: (title) => (title ? `${title} — ${appName}` : appName),

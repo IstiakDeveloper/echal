@@ -16,9 +16,17 @@ type PlateProps = {
 };
 
 /** White backing so the logo stays visible on tinted headers and dark UI */
-export function BrandLogoPlate({ className, rounded = 'xl', children }: PlateProps) {
+export function BrandLogoPlate({
+    className,
+    rounded = 'xl',
+    children,
+}: PlateProps) {
     const roundedCls =
-        rounded === 'lg' ? 'rounded-lg' : rounded === 'full' ? 'rounded-full' : 'rounded-xl';
+        rounded === 'lg'
+            ? 'rounded-lg'
+            : rounded === 'full'
+              ? 'rounded-full'
+              : 'rounded-xl';
 
     return (
         <span
@@ -33,6 +41,18 @@ export function BrandLogoPlate({ className, rounded = 'xl', children }: PlatePro
     );
 }
 
-export default function AppLogoIcon({ className, alt = '', src = '/logo.png', ...props }: Props) {
-    return <img src={src} alt={alt} className={cn('object-contain', className)} {...props} />;
+export default function AppLogoIcon({
+    className,
+    alt = '',
+    src = '/logo.png',
+    ...props
+}: Props) {
+    return (
+        <img
+            src={src}
+            alt={alt}
+            className={cn('object-contain', className)}
+            {...props}
+        />
+    );
 }

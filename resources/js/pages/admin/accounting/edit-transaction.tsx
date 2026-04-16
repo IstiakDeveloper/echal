@@ -41,19 +41,33 @@ export default function EditTransaction({ transaction }: EditTransactionProps) {
             <AdminLayout>
                 <div className="mx-auto max-w-md space-y-6">
                     <div>
-                        <Link href="/admin/accounting" className="text-sm text-muted-foreground hover:text-foreground">
+                        <Link
+                            href="/admin/accounting"
+                            className="text-sm text-muted-foreground hover:text-foreground"
+                        >
                             ← Transactions
                         </Link>
-                        <h1 className="mt-2 text-2xl font-bold">Edit transaction</h1>
-                        <p className="mt-1 text-sm text-muted-foreground">Update date, type, description, or amount</p>
+                        <h1 className="mt-2 text-2xl font-bold">
+                            Edit transaction
+                        </h1>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Update date, type, description, or amount
+                        </p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-card p-6">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="space-y-4 rounded-lg border border-border bg-card p-6"
+                    >
                         <div>
-                            <label className="mb-1 block text-sm font-medium">Type</label>
+                            <label className="mb-1 block text-sm font-medium">
+                                Type
+                            </label>
                             <select
                                 value={form.data.type}
-                                onChange={(e) => form.setData('type', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('type', e.target.value)
+                                }
                                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                             >
                                 {TRANSACTION_TYPES.map((t) => (
@@ -64,20 +78,28 @@ export default function EditTransaction({ transaction }: EditTransactionProps) {
                             </select>
                         </div>
                         <div>
-                            <label className="mb-1 block text-sm font-medium">Date</label>
+                            <label className="mb-1 block text-sm font-medium">
+                                Date
+                            </label>
                             <input
                                 type="date"
                                 value={form.data.date}
-                                onChange={(e) => form.setData('date', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('date', e.target.value)
+                                }
                                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                             />
                         </div>
                         <div>
-                            <label className="mb-1 block text-sm font-medium">Description</label>
+                            <label className="mb-1 block text-sm font-medium">
+                                Description
+                            </label>
                             <input
                                 type="text"
                                 value={form.data.description}
-                                onChange={(e) => form.setData('description', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('description', e.target.value)
+                                }
                                 placeholder="e.g. Office rent"
                                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                                 required
@@ -85,20 +107,30 @@ export default function EditTransaction({ transaction }: EditTransactionProps) {
                             <InputError message={form.errors.description} />
                         </div>
                         <div>
-                            <label className="mb-1 block text-sm font-medium">Amount (৳)</label>
+                            <label className="mb-1 block text-sm font-medium">
+                                Amount (৳)
+                            </label>
                             <input
                                 type="number"
                                 step="0.01"
                                 min="0.01"
                                 value={form.data.amount}
-                                onChange={(e) => form.setData('amount', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('amount', e.target.value)
+                                }
                                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                                 required
                             />
                             <InputError message={form.errors.amount} />
                         </div>
-                        <Button type="submit" className="w-full" disabled={form.processing}>
-                            {form.processing ? 'Saving...' : 'Update transaction'}
+                        <Button
+                            type="submit"
+                            className="w-full"
+                            disabled={form.processing}
+                        >
+                            {form.processing
+                                ? 'Saving...'
+                                : 'Update transaction'}
                         </Button>
                     </form>
                 </div>

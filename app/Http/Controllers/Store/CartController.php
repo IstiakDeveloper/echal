@@ -13,6 +13,14 @@ use Inertia\Response;
 
 class CartController extends Controller
 {
+    protected function noStore(JsonResponse $response): JsonResponse
+    {
+        return $response
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
     /**
      * Display the cart (page or JSON for drawer).
      */
@@ -30,10 +38,10 @@ class CartController extends Controller
             ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest')
             && ! $request->header('X-Inertia')
         ) {
-            return response()->json([
+            return $this->noStore(response()->json([
                 'items' => $items,
                 'total' => $total,
-            ]);
+            ]));
         }
 
         return Inertia::render('store/cart', [
@@ -55,10 +63,19 @@ class CartController extends Controller
         $productId = (string) $validated['product_id'];
         $quantity = isset($validated['quantity']) ? (int) $validated['quantity'] : null;
 
+        $product = Product::query()->select(['id', 'stock'])->find((int) $productId);
+        if (! $product) {
+            return back()->with('error', 'Product not found.');
+        }
+
         $cart = $request->session()->get('cart', ['items' => []]);
 
         $currentQuantity = (int) Arr::get($cart, "items.{$productId}.quantity", 0);
         $newQuantity = $quantity !== null ? $quantity : ($currentQuantity + 1);
+
+        if ($newQuantity > (int) $product->stock) {
+            $newQuantity = (int) $product->stock;
+        }
 
         if ($newQuantity <= 0) {
             Arr::forget($cart, "items.{$productId}");
@@ -74,15 +91,35 @@ class CartController extends Controller
             $items = $cart['items'] ?? [];
             $count = (int) collect($items)->sum('quantity');
 
-            return response()->json([
+            return $this->noStore(response()->json([
                 'cart' => [
                     'count' => $count,
                     'items' => $items,
                 ],
-            ]);
+                'warning' => $newQuantity < ($quantity ?? $currentQuantity + 1) ? 'Stock limit reached.' : null,
+            ]));
         }
 
         return back()->with('cart_updated', true);
+    }
+
+    /**
+     * Clear the cart completely.
+     */
+    public function clear(Request $request): JsonResponse|RedirectResponse
+    {
+        $request->session()->put('cart', ['items' => []]);
+
+        if ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return $this->noStore(response()->json([
+                'cart' => [
+                    'count' => 0,
+                    'items' => [],
+                ],
+            ]));
+        }
+
+        return back()->with('cart_cleared', true);
     }
 
     /**
@@ -95,6 +132,10 @@ class CartController extends Controller
         ]);
 
         $productId = (string) $validated['product_id'];
+        $product = Product::query()->select(['id', 'stock'])->find((int) $productId);
+        if (! $product || (int) $product->stock <= 0) {
+            return back()->with('error', 'This product is out of stock.');
+        }
 
         $request->session()->put('cart', [
             'items' => [
@@ -103,13 +144,13 @@ class CartController extends Controller
         ]);
 
         if ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
-            return response()->json([
+            return $this->noStore(response()->json([
                 'redirect' => url('/checkout'),
                 'cart' => [
                     'count' => 1,
                     'items' => [$productId => ['quantity' => 1]],
                 ],
-            ]);
+            ]));
         }
 
         return redirect()->route('checkout.show');
@@ -139,15 +180,31 @@ class CartController extends Controller
             ->get()
             ->keyBy('id');
 
-        return collect($items)
-            ->map(function (array $item, string $productId) use ($products): ?array {
+        $updatedCartItems = $items;
+
+        $mapped = collect($items)
+            ->map(function (array $item, string $productId) use ($products, &$updatedCartItems): ?array {
                 $product = $products->get((int) $productId);
 
                 if ($product === null) {
+                    unset($updatedCartItems[$productId]);
+
                     return null;
                 }
 
-                $quantity = (int) $item['quantity'];
+                $requestedQty = (int) $item['quantity'];
+                $available = (int) $product->stock;
+                $quantity = min($requestedQty, $available);
+
+                if ($quantity <= 0) {
+                    unset($updatedCartItems[$productId]);
+
+                    return null;
+                }
+
+                if ($quantity !== $requestedQty) {
+                    $updatedCartItems[$productId] = ['quantity' => $quantity];
+                }
                 $lineTotal = (float) $product->price * $quantity;
 
                 return [
@@ -156,6 +213,7 @@ class CartController extends Controller
                     'slug' => $product->slug,
                     'price' => (string) $product->price,
                     'image' => $product->image,
+                    'stock' => (int) $product->stock,
                     'category' => [
                         'id' => $product->category?->id,
                         'name' => $product->category?->name,
@@ -168,5 +226,12 @@ class CartController extends Controller
             ->filter()
             ->values()
             ->all();
+
+        // Persist any stock-capped quantities so UI stays consistent.
+        if ($updatedCartItems !== $items) {
+            $request->session()->put('cart', ['items' => $updatedCartItems]);
+        }
+
+        return $mapped;
     }
 }

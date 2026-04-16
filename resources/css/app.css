@@ -140,10 +140,17 @@
 
     body {
         @apply bg-background text-foreground antialiased;
-        font-feature-settings: 'rlig' 1, 'calt' 1;
+        font-feature-settings:
+            'rlig' 1,
+            'calt' 1;
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         font-family: var(--font-heading);
         font-weight: 700;
     }
@@ -164,7 +171,8 @@
     padding: 0.4rem 0.6rem;
     font-size: 0.8125rem;
 }
-.report-th, .report-td {
+.report-th,
+.report-td {
     padding: 0.4rem 0.6rem;
     font-size: 0.8125rem;
     border: 1px solid var(--border);
@@ -185,10 +193,12 @@
     padding-bottom: 0.5rem;
     vertical-align: middle;
 }
-.report-th.report-num, .report-td.report-num {
+.report-th.report-num,
+.report-td.report-num {
     min-width: 5rem;
 }
-.report-balance-col, .report-total-col {
+.report-balance-col,
+.report-total-col {
     min-width: 5.5rem;
 }
 

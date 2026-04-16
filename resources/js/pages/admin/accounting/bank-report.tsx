@@ -32,7 +32,9 @@ function fmt(n: number): string {
 }
 
 export default function BankReport({ report, filters }: BankReportProps) {
-    const form = useForm({ month: filters.month || new Date().toISOString().slice(0, 7) });
+    const form = useForm({
+        month: filters.month || new Date().toISOString().slice(0, 7),
+    });
     const { debit_columns, credit_columns, rows, totals } = report;
 
     return (
@@ -41,17 +43,24 @@ export default function BankReport({ report, filters }: BankReportProps) {
                 <style>{`@media print { @page { size: A4 landscape; } }`}</style>
             </Head>
             <AdminLayout>
-                <div className="space-y-6 report-container">
-                    <div className="flex flex-wrap items-center justify-between gap-4 no-print">
+                <div className="report-container space-y-6">
+                    <div className="no-print flex flex-wrap items-center justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-bold">Bank Report</h1>
                             <p className="mt-1 text-muted-foreground">
-                                {report.month_label} — One row per day. Debit (Sale, Opening, Fund in) | Credit sub-columns | Available balance.
+                                {report.month_label} — One row per day. Debit
+                                (Sale, Opening, Fund in) | Credit sub-columns |
+                                Available balance.
                             </p>
                         </div>
                         <div className="flex items-center gap-2">
                             <Link href="/admin/accounting">← Transactions</Link>
-                            <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.print()}
+                            >
                                 <Printer className="mr-2 size-4" />
                                 Print
                             </Button>
@@ -63,65 +72,107 @@ export default function BankReport({ report, filters }: BankReportProps) {
                             e.preventDefault();
                             form.get('/admin/accounting/bank-report');
                         }}
-                        className="flex flex-wrap items-end gap-4 rounded-lg border border-border bg-card p-4 no-print"
+                        className="no-print flex flex-wrap items-end gap-4 rounded-lg border border-border bg-card p-4"
                     >
                         <label className="flex flex-col gap-1">
                             <span className="text-sm font-medium">Month</span>
                             <input
                                 type="month"
                                 value={form.data.month}
-                                onChange={(e) => form.setData('month', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('month', e.target.value)
+                                }
                                 className="h-10 rounded-md border border-input bg-background px-3 text-sm"
                             />
                         </label>
                         <Button type="submit">Apply</Button>
                     </form>
 
-                    <div className="report-paper report-bank rounded border border-border bg-card overflow-hidden">
+                    <div className="report-paper report-bank overflow-hidden rounded border border-border bg-card">
                         <div className="border-b border-border bg-muted px-4 py-3 text-sm font-medium">
-                            <strong>Opening balance (start of {report.month_label}):</strong> ৳{fmt(report.opening_balance)}
+                            <strong>
+                                Opening balance (start of {report.month_label}):
+                            </strong>{' '}
+                            ৳{fmt(report.opening_balance)}
                         </div>
                         <div className="overflow-x-auto">
-                            <table className="w-full report-table">
+                            <table className="report-table w-full">
                                 <thead>
                                     <tr>
-                                        <th className="report-th report-date">Date</th>
+                                        <th className="report-th report-date">
+                                            Date
+                                        </th>
                                         {debit_columns.map((c) => (
-                                            <th key={c} className="report-th report-num">
+                                            <th
+                                                key={c}
+                                                className="report-th report-num"
+                                            >
                                                 {DEBIT_LABELS[c] ?? c}
                                             </th>
                                         ))}
-                                        <th className="report-th report-num report-total-col">Total Debit</th>
+                                        <th className="report-th report-num report-total-col">
+                                            Total Debit
+                                        </th>
                                         {credit_columns.map((c) => (
-                                            <th key={c} className="report-th report-num">
+                                            <th
+                                                key={c}
+                                                className="report-th report-num"
+                                            >
                                                 {CREDIT_LABELS[c] ?? c}
                                             </th>
                                         ))}
-                                        <th className="report-th report-num report-total-col">Total Credit</th>
-                                        <th className="report-th report-num report-balance-col">Available balance</th>
+                                        <th className="report-th report-num report-total-col">
+                                            Total Credit
+                                        </th>
+                                        <th className="report-th report-num report-balance-col">
+                                            Available balance
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {rows.map((row, i) => (
-                                        <tr key={row.date as string} className="report-tr">
-                                            <td className="report-td report-date">{(row.date as string)}</td>
+                                    {rows.map((row) => (
+                                        <tr
+                                            key={row.date as string}
+                                            className="report-tr"
+                                        >
+                                            <td className="report-td report-date">
+                                                {row.date as string}
+                                            </td>
                                             {debit_columns.map((c) => (
-                                                <td key={c} className="report-td report-num text-right">
-                                                    {(row['debit_' + c] as number) > 0 ? `৳${fmt(row['debit_' + c] as number)}` : ''}
+                                                <td
+                                                    key={c}
+                                                    className="report-td report-num text-right"
+                                                >
+                                                    {(row[
+                                                        'debit_' + c
+                                                    ] as number) > 0
+                                                        ? `৳${fmt(row['debit_' + c] as number)}`
+                                                        : ''}
                                                 </td>
                                             ))}
-                                            <td className="report-td report-num text-right report-total-col font-medium">
-                                                ৳{fmt(row.total_debit as number)}
+                                            <td className="report-td report-num report-total-col text-right font-medium">
+                                                ৳
+                                                {fmt(row.total_debit as number)}
                                             </td>
                                             {credit_columns.map((c) => (
-                                                <td key={c} className="report-td report-num text-right">
-                                                    {(row['credit_' + c] as number) > 0 ? `৳${fmt(row['credit_' + c] as number)}` : ''}
+                                                <td
+                                                    key={c}
+                                                    className="report-td report-num text-right"
+                                                >
+                                                    {(row[
+                                                        'credit_' + c
+                                                    ] as number) > 0
+                                                        ? `৳${fmt(row['credit_' + c] as number)}`
+                                                        : ''}
                                                 </td>
                                             ))}
-                                            <td className="report-td report-num text-right report-total-col font-medium">
-                                                ৳{fmt(row.total_credit as number)}
+                                            <td className="report-td report-num report-total-col text-right font-medium">
+                                                ৳
+                                                {fmt(
+                                                    row.total_credit as number,
+                                                )}
                                             </td>
-                                            <td className="report-td report-num text-right report-balance-col font-semibold">
+                                            <td className="report-td report-num report-balance-col text-right font-semibold">
                                                 ৳{fmt(row.balance as number)}
                                             </td>
                                         </tr>
@@ -129,21 +180,44 @@ export default function BankReport({ report, filters }: BankReportProps) {
                                 </tbody>
                                 <tfoot>
                                     <tr className="report-total-row font-semibold">
-                                        <td className="report-td report-date">Total</td>
+                                        <td className="report-td report-date">
+                                            Total
+                                        </td>
                                         {debit_columns.map((c) => (
-                                            <td key={c} className="report-td report-num text-right">
-                                                ৳{fmt(totals['debit_' + c] ?? 0)}
+                                            <td
+                                                key={c}
+                                                className="report-td report-num text-right"
+                                            >
+                                                ৳
+                                                {fmt(totals['debit_' + c] ?? 0)}
                                             </td>
                                         ))}
-                                        <td className="report-td report-num text-right report-total-col">৳{fmt(totals.total_debit ?? 0)}</td>
+                                        <td className="report-td report-num report-total-col text-right">
+                                            ৳{fmt(totals.total_debit ?? 0)}
+                                        </td>
                                         {credit_columns.map((c) => (
-                                            <td key={c} className="report-td report-num text-right">
-                                                ৳{fmt(totals['credit_' + c] ?? 0)}
+                                            <td
+                                                key={c}
+                                                className="report-td report-num text-right"
+                                            >
+                                                ৳
+                                                {fmt(
+                                                    totals['credit_' + c] ?? 0,
+                                                )}
                                             </td>
                                         ))}
-                                        <td className="report-td report-num text-right report-total-col">৳{fmt(totals.total_credit ?? 0)}</td>
-                                        <td className="report-td report-num text-right report-balance-col">
-                                            ৳{fmt(report.rows.length > 0 ? (report.rows[report.rows.length - 1].balance as number) : report.opening_balance)}
+                                        <td className="report-td report-num report-total-col text-right">
+                                            ৳{fmt(totals.total_credit ?? 0)}
+                                        </td>
+                                        <td className="report-td report-num report-balance-col text-right">
+                                            ৳
+                                            {fmt(
+                                                report.rows.length > 0
+                                                    ? (report.rows[
+                                                          report.rows.length - 1
+                                                      ].balance as number)
+                                                    : report.opening_balance,
+                                            )}
                                         </td>
                                     </tr>
                                 </tfoot>

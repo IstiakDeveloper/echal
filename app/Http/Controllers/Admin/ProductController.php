@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ProductCsvImportRequest;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -60,6 +62,196 @@ class ProductController extends Controller
         ]);
     }
 
+    public function importCsvForm(): Response
+    {
+        return Inertia::render('admin/products/import-csv');
+    }
+
+    public function importCsv(ProductCsvImportRequest $request): RedirectResponse
+    {
+        $path = $request->file('file')->getRealPath();
+        if (! $path) {
+            return redirect()->back()->with('error', 'Unable to read uploaded file.');
+        }
+
+        $handle = fopen($path, 'r');
+        if ($handle === false) {
+            return redirect()->back()->with('error', 'Unable to open uploaded file.');
+        }
+
+        $header = null;
+        $created = 0;
+        $skipped = 0;
+        $errors = [];
+
+        DB::beginTransaction();
+
+        try {
+            $rowNumber = 0;
+
+            while (($row = fgetcsv($handle)) !== false) {
+                $rowNumber++;
+
+                if ($rowNumber === 1) {
+                    $maybeHeader = array_map(
+                        fn ($v) => Str::of((string) $v)->lower()->trim()->toString(),
+                        $row
+                    );
+
+                    if (in_array('name', $maybeHeader, true) || in_array('product_name', $maybeHeader, true)) {
+                        $header = $maybeHeader;
+
+                        continue;
+                    }
+
+                    $header = ['category', 'name', 'price', 'slug', 'description', 'image', 'stock', 'is_active'];
+                }
+
+                $values = $this->mapCsvRow($header, $row);
+
+                $name = trim((string) ($values['name'] ?? ''));
+                $categoryRaw = trim((string) ($values['category'] ?? ''));
+                $priceRaw = trim((string) ($values['price'] ?? ''));
+
+                if ($name === '' || $categoryRaw === '' || $priceRaw === '') {
+                    $skipped++;
+                    $errors[] = "Row {$rowNumber}: missing required fields (category, name, price).";
+
+                    continue;
+                }
+
+                $price = (float) $priceRaw;
+                if ($price < 0) {
+                    $skipped++;
+                    $errors[] = "Row {$rowNumber}: price must be >= 0.";
+
+                    continue;
+                }
+
+                $categoryId = $this->resolveCategoryId($categoryRaw);
+                if ($categoryId === null) {
+                    $skipped++;
+                    $errors[] = "Row {$rowNumber}: category not found: {$categoryRaw}.";
+
+                    continue;
+                }
+
+                $slug = trim((string) ($values['slug'] ?? ''));
+                if ($slug === '') {
+                    $slug = Str::slug($name);
+                } else {
+                    $slug = Str::slug($slug);
+                }
+
+                $slug = $this->uniqueProductSlug($slug);
+
+                $stockRaw = trim((string) ($values['stock'] ?? ''));
+                $stock = $stockRaw === '' ? null : max(0, (int) $stockRaw);
+
+                $isActiveRaw = Str::of((string) ($values['is_active'] ?? '1'))->lower()->trim()->toString();
+                $isActive = in_array($isActiveRaw, ['1', 'true', 'yes', 'y'], true);
+
+                $image = trim((string) ($values['image'] ?? ''));
+                if ($image === '') {
+                    $image = null;
+                }
+
+                $description = trim((string) ($values['description'] ?? ''));
+                if ($description === '') {
+                    $description = null;
+                }
+
+                Product::create([
+                    'category_id' => $categoryId,
+                    'name' => $name,
+                    'slug' => $slug,
+                    'description' => $description,
+                    'price' => $price,
+                    'image' => $image,
+                    'stock' => $stock ?? 0,
+                    'is_active' => $isActive,
+                ]);
+
+                $created++;
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            fclose($handle);
+
+            throw $e;
+        }
+
+        fclose($handle);
+
+        $message = "CSV import done. Created: {$created}, Skipped: {$skipped}.";
+        if ($errors !== []) {
+            $message .= ' First errors: '.implode(' | ', array_slice($errors, 0, 3));
+        }
+
+        return redirect()->route('admin.products.index')->with('success', $message);
+    }
+
+    /**
+     * @param  list<string>  $header
+     * @param  list<string|null>  $row
+     * @return array<string, string|null>
+     */
+    private function mapCsvRow(array $header, array $row): array
+    {
+        $out = [];
+        foreach ($header as $i => $key) {
+            $out[$key] = $row[$i] ?? null;
+        }
+
+        if (isset($out['product_name']) && ! isset($out['name'])) {
+            $out['name'] = $out['product_name'];
+        }
+
+        return $out;
+    }
+
+    private function resolveCategoryId(string $raw): ?int
+    {
+        if (ctype_digit($raw)) {
+            $id = (int) $raw;
+
+            return Category::query()->whereKey($id)->value('id');
+        }
+
+        $name = trim($raw);
+        if ($name === '') {
+            return null;
+        }
+
+        $existing = Category::query()->where('name', $name)->first();
+        if ($existing) {
+            return $existing->id;
+        }
+
+        $slug = Str::slug($name);
+        $category = Category::create([
+            'name' => $name,
+            'slug' => $slug,
+        ]);
+
+        return $category->id;
+    }
+
+    private function uniqueProductSlug(string $baseSlug): string
+    {
+        $slug = $baseSlug;
+        $i = 2;
+
+        while (Product::query()->where('slug', $slug)->exists()) {
+            $slug = $baseSlug.'-'.$i;
+            $i++;
+        }
+
+        return $slug;
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -84,12 +276,12 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('products', 'public');
-                $imagePaths[] = '/storage/' . $path;
+                $imagePaths[] = '/storage/'.$path;
             }
         }
 
         // Set main image if uploaded images exist
-        if (!empty($imagePaths) && empty($validated['image'])) {
+        if (! empty($imagePaths) && empty($validated['image'])) {
             $validated['image'] = $imagePaths[0]; // First image as main image
         }
 
@@ -152,7 +344,7 @@ class ProductController extends Controller
         $currentImages = $product->images ?? [];
         if ($request->has('images_to_delete') && is_array($request->images_to_delete)) {
             $currentImages = array_values(array_filter($currentImages, function ($image) use ($request) {
-                return !in_array($image, $request->images_to_delete);
+                return ! in_array($image, $request->images_to_delete);
             }));
         }
 
@@ -161,7 +353,7 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('products', 'public');
-                $newImagePaths[] = '/storage/' . $path;
+                $newImagePaths[] = '/storage/'.$path;
             }
         }
 
@@ -169,7 +361,7 @@ class ProductController extends Controller
         $allImages = array_merge($currentImages, $newImagePaths);
 
         // Set main image if uploaded images exist and no main image URL provided
-        if (!empty($allImages) && empty($validated['image'])) {
+        if (! empty($allImages) && empty($validated['image'])) {
             $validated['image'] = $allImages[0]; // First image as main image
         }
 

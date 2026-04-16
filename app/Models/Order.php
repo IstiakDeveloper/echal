@@ -24,6 +24,7 @@ class Order extends Model
         'address',
         'subtotal',
         'delivery_amount',
+        'discount',
         'total',
         'status',
         'read_at',
@@ -57,4 +58,3 @@ class Order extends Model
         ];
     }
 }
-

@@ -60,6 +60,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'appUrl' => rtrim((string) config('app.url'), '/'),
             'auth' => [
                 'user' => $request->user(),
             ],
@@ -72,6 +73,28 @@ class HandleInertiaRequests extends Middleware
                 'count' => $cartCount,
                 'items' => $cartItems,
             ],
+            'storefront' => static function (): array {
+                $settings = \App\Models\StorefrontSetting::current();
+                $activePopup = \App\Models\StorefrontPopup::query()
+                    ->where('is_active', true)
+                    ->latest('updated_at')
+                    ->first(['id', 'image_url', 'link_url', 'updated_at']);
+
+                return [
+                    'topOffer' => $settings->top_offer,
+                    'supportEmail' => $settings->support_email,
+                    'supportPhone' => $settings->support_phone,
+                    'whatsappPhone' => $settings->whatsapp_phone,
+                    'whatsappPrefill' => $settings->whatsapp_prefill,
+                    'facebookPageUrl' => $settings->facebook_page_url,
+                    'popup' => $activePopup ? [
+                        'id' => $activePopup->id,
+                        'imageUrl' => $activePopup->image_url,
+                        'linkUrl' => $activePopup->link_url,
+                        'updatedAt' => $activePopup->updated_at?->toISOString(),
+                    ] : null,
+                ];
+            },
             'unreadOrdersCount' => $unreadOrdersCount,
             'accountingCashBalance' => $accountingCashBalance,
         ];

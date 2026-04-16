@@ -12,12 +12,6 @@ export type UseAppearanceReturn = {
 const listeners = new Set<() => void>();
 let currentAppearance: Appearance = 'system';
 
-const prefersDark = (): boolean => {
-    if (typeof window === 'undefined') return false;
-
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-};
-
 const setCookie = (name: string, value: string, days = 365): void => {
     if (typeof document === 'undefined') return;
     const maxAge = days * 24 * 60 * 60;
@@ -31,7 +25,9 @@ const getStoredAppearance = (): Appearance => {
 };
 
 const isDarkMode = (appearance: Appearance): boolean => {
-    return appearance === 'dark' || (appearance === 'system' && prefersDark());
+    // We intentionally default to light and do NOT auto-follow system dark mode.
+    // "system" behaves like light unless the user explicitly chooses "dark".
+    return appearance === 'dark';
 };
 
 const applyTheme = (appearance: Appearance): void => {
@@ -66,8 +62,8 @@ export function initializeTheme(): void {
     if (typeof window === 'undefined') return;
 
     if (!localStorage.getItem('appearance')) {
-        localStorage.setItem('appearance', 'system');
-        setCookie('appearance', 'system');
+        localStorage.setItem('appearance', 'light');
+        setCookie('appearance', 'light');
     }
 
     currentAppearance = getStoredAppearance();

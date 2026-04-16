@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\AccountingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -46,9 +47,9 @@ class OrderController extends Controller
     public function show(Order $order): Response
     {
         $order->load(['user', 'items.product:id,name,slug,image']);
-        
+
         // Mark order as read
-        if (!$order->read_at) {
+        if (! $order->read_at) {
             $order->update(['read_at' => now()]);
         }
 
@@ -63,7 +64,19 @@ class OrderController extends Controller
             'status' => ['required', 'string', 'in:pending,processing,shipped,delivered,cancelled'],
         ]);
 
-        $order->update(['status' => $validated['status']]);
+        if ($order->status === 'delivered') {
+            return redirect()
+                ->back()
+                ->with('error', 'Delivered orders cannot be changed or cancelled.');
+        }
+
+        $nextStatus = $validated['status'];
+        $order->update(['status' => $nextStatus]);
+
+        if ($nextStatus === 'delivered') {
+            // Only recognize the sale in accounting once the order is completed/delivered.
+            app(AccountingService::class)->recordSaleIfMissing($order);
+        }
 
         return redirect()->back()->with('success', 'Order status updated successfully.');
     }

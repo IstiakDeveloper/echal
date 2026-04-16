@@ -1,7 +1,10 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ArrowRight, ShoppingBag, UserPlus } from 'lucide-react';
 import { useCallback } from 'react';
-import { BrandLogoPlate, brandLogoImageClass } from '@/components/app-logo-icon';
+import {
+    BrandLogoPlate,
+    brandLogoImageClass,
+} from '@/components/app-logo-icon';
 import ProductCard from '@/components/store/product-card';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/cart-context';
@@ -22,6 +25,7 @@ type Product = {
     slug: string;
     price: string;
     image: string | null;
+    stock: number;
     category: { id: number; name: string; slug: string };
 };
 
@@ -35,28 +39,41 @@ export default function StoreHome({
     featuredProducts: Product[];
 }) {
     const { auth } = usePage<SharedData>().props;
-    const { getQuantity, addToCart, setQuantity, openDrawer, setFromServer } = useCart();
+    const { getQuantity, addToCart, setQuantity, setFromServer } = useCart();
 
-    const handleBuyNow = useCallback(async (productId: number) => {
-        const formData = new FormData();
-        formData.append('product_id', String(productId));
-        formData.append(
-            '_token',
-            (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content ?? ''
-        );
-        const res = await fetch('/cart/buy-now', {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin',
-            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-        });
-        const data = (await res.json()) as {
-            cart?: { count: number; items: Record<string, { quantity: number }> };
-            redirect?: string;
-        };
-        if (data.cart) setFromServer(data.cart.count, data.cart.items);
-        if (data.redirect) router.visit(data.redirect);
-    }, [setFromServer]);
+    const handleBuyNow = useCallback(
+        async (productId: number) => {
+            const formData = new FormData();
+            formData.append('product_id', String(productId));
+            formData.append(
+                '_token',
+                (
+                    document.querySelector(
+                        'meta[name="csrf-token"]',
+                    ) as HTMLMetaElement | null
+                )?.content ?? '',
+            );
+            const res = await fetch('/cart/buy-now', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+            const data = (await res.json()) as {
+                cart?: {
+                    count: number;
+                    items: Record<string, { quantity: number }>;
+                };
+                redirect?: string;
+            };
+            if (data.cart) setFromServer(data.cart.count, data.cart.items);
+            if (data.redirect) router.visit(data.redirect);
+        },
+        [setFromServer],
+    );
 
     return (
         <>
@@ -81,36 +98,61 @@ export default function StoreHome({
                             aria-hidden
                         />
                         {/* Overlay for readability */}
-                        <div className="absolute inset-0 bg-background/85 backdrop-blur-[2px]" aria-hidden />
-                        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-transparent to-background/90" aria-hidden />
-                        
+                        <div
+                            className="absolute inset-0 bg-background/85 backdrop-blur-[2px]"
+                            aria-hidden
+                        />
+                        <div
+                            className="absolute inset-0 bg-linear-to-b from-primary/8 via-transparent to-background/90"
+                            aria-hidden
+                        />
+
                         <div className="relative mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16 md:py-20">
                             <div className="text-center">
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary sm:text-sm">
+                                <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase sm:text-sm">
                                     Rice only · Bangladesh
                                 </p>
-                                <h1 className="mt-5 text-3xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
+                                <h1 className="mt-5 text-3xl leading-[1.15] font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
                                     Premium chal.
                                     <br />
-                                    <span className="text-primary">Miniket, Chinigura, Basmati</span>
-                                    <br />
-                                    — all here.
+                                    <span className="text-primary">
+                                        Miniket, Chinigura, Basmati
+                                    </span>
+                                    <br />— all here.
                                 </h1>
                                 <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                                    Pick your rice, add to cart, order in minutes. Fresh stock, clear prices, delivery across Bangladesh.
+                                    Pick your rice, add to cart, order in
+                                    minutes. Fresh stock, clear prices, delivery
+                                    across Bangladesh.
                                 </p>
                                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                                     <Link href={productsIndex.url()}>
-                                        <Button size="lg" className="gap-2 shadow-md transition-shadow hover:shadow-lg">
-                                            <ShoppingBag className="size-4" aria-hidden />
+                                        <Button
+                                            size="lg"
+                                            className="gap-2 shadow-md transition-shadow hover:shadow-lg"
+                                        >
+                                            <ShoppingBag
+                                                className="size-4"
+                                                aria-hidden
+                                            />
                                             See all rice
-                                            <ArrowRight className="size-4" aria-hidden />
+                                            <ArrowRight
+                                                className="size-4"
+                                                aria-hidden
+                                            />
                                         </Button>
                                     </Link>
                                     {!auth?.user && canRegister && (
                                         <Link href={register()}>
-                                            <Button size="lg" variant="outline" className="gap-2 border-2 bg-background/95 backdrop-blur-sm">
-                                                <UserPlus className="size-4" aria-hidden />
+                                            <Button
+                                                size="lg"
+                                                variant="outline"
+                                                className="gap-2 border-2 bg-background/95 backdrop-blur-sm"
+                                            >
+                                                <UserPlus
+                                                    className="size-4"
+                                                    aria-hidden
+                                                />
                                                 Register
                                             </Button>
                                         </Link>
@@ -128,32 +170,43 @@ export default function StoreHome({
                                     Shop by rice type
                                 </h2>
                                 <p className="mt-2 text-center text-sm text-muted-foreground">
-                                    Miniket, Chinigura, Katari Bhog, Basmati and more.
+                                    Miniket, Chinigura, Katari Bhog, Basmati and
+                                    more.
                                 </p>
                                 <ul className="mt-8 flex flex-wrap items-center justify-center gap-3">
                                     {categories.map((cat) => {
-                                        const firstProduct = featuredProducts.find(
-                                            (p) => p.category.id === cat.id
-                                        );
+                                        const firstProduct =
+                                            featuredProducts.find(
+                                                (p) => p.category.id === cat.id,
+                                            );
                                         return (
                                             <li key={cat.id}>
                                                 <Link
                                                     href={productsIndex.url()}
-                                                    data={{ category: cat.slug }}
+                                                    data={{
+                                                        category: cat.slug,
+                                                    }}
                                                     className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/50 hover:bg-primary/5"
                                                 >
                                                     {firstProduct?.image ? (
                                                         <img
-                                                            src={firstProduct.image}
+                                                            src={
+                                                                firstProduct.image
+                                                            }
                                                             alt=""
                                                             className="size-6 rounded object-cover"
                                                         />
                                                     ) : (
-                                                        <BrandLogoPlate rounded="lg" className="size-7">
+                                                        <BrandLogoPlate
+                                                            rounded="lg"
+                                                            className="size-7"
+                                                        >
                                                             <img
                                                                 src="/logo.png"
                                                                 alt=""
-                                                                className={brandLogoImageClass}
+                                                                className={
+                                                                    brandLogoImageClass
+                                                                }
                                                             />
                                                         </BrandLogoPlate>
                                                     )}
@@ -165,9 +218,16 @@ export default function StoreHome({
                                 </ul>
                                 <p className="mt-6 text-center">
                                     <Link href={productsIndex.url()}>
-                                        <Button variant="outline" size="sm" className="gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="gap-2"
+                                        >
                                             View all categories
-                                            <ArrowRight className="size-3.5" aria-hidden />
+                                            <ArrowRight
+                                                className="size-3.5"
+                                                aria-hidden
+                                            />
                                         </Button>
                                     </Link>
                                 </p>
@@ -190,19 +250,27 @@ export default function StoreHome({
                                         <ProductCard
                                             key={product.id}
                                             product={product}
-                                            quantityInCart={getQuantity(product.id)}
+                                            quantityInCart={getQuantity(
+                                                product.id,
+                                            )}
                                             onAddToCart={addToCart}
                                             onSetQuantity={setQuantity}
-                                            onOpenDrawer={openDrawer}
                                             onBuy={handleBuyNow}
                                         />
                                     ))}
                                 </ul>
                                 <p className="mt-8 text-center">
                                     <Link href={productsIndex.url()}>
-                                        <Button variant="outline" size="lg" className="gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="lg"
+                                            className="gap-2"
+                                        >
                                             See all rice
-                                            <ArrowRight className="size-4" aria-hidden />
+                                            <ArrowRight
+                                                className="size-4"
+                                                aria-hidden
+                                            />
                                         </Button>
                                     </Link>
                                 </p>
@@ -217,13 +285,19 @@ export default function StoreHome({
                                 One place for all your chal
                             </h2>
                             <p className="mt-2 text-sm text-muted-foreground">
-                                Miniket, Chinigura, Katari Bhog, Basmati, BR-28 — fresh stock, easy order,
-                                fast delivery.
+                                Miniket, Chinigura, Katari Bhog, Basmati, BR-28
+                                — fresh stock, easy order, fast delivery.
                             </p>
-                            <Link href={productsIndex.url()} className="mt-6 inline-block">
+                            <Link
+                                href={productsIndex.url()}
+                                className="mt-6 inline-block"
+                            >
                                 <Button size="lg" className="gap-2">
                                     Browse rice
-                                    <ArrowRight className="size-4" aria-hidden />
+                                    <ArrowRight
+                                        className="size-4"
+                                        aria-hidden
+                                    />
                                 </Button>
                             </Link>
                         </div>

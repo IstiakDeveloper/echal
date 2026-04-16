@@ -1,8 +1,13 @@
 import { Link } from '@inertiajs/react';
-import { Minus, Package, Plus, ShoppingCart } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { Minus, Package, Plus, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+} from '@/components/ui/sheet';
 import { useCart } from '@/contexts/cart-context';
 import { index as productsIndex } from '@/routes/products';
 
@@ -12,6 +17,7 @@ type CartItem = {
     slug: string;
     price: string;
     image: string | null;
+    stock: number;
     quantity: number;
     line_total: number;
     category: { id: number | null; name: string | null; slug: string | null };
@@ -23,20 +29,47 @@ type CartDrawerProps = {
 };
 
 export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
-    const { setQuantity } = useCart();
+    const { setQuantity, setFromServer } = useCart();
     const [items, setItems] = useState<CartItem[]>([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [clearing, setClearing] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(false);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const mql = window.matchMedia('(min-width: 640px)');
+        const update = () => setIsDesktop(mql.matches);
+        update();
+        mql.addEventListener?.('change', update);
+        return () => mql.removeEventListener?.('change', update);
+    }, []);
+
+    const sheetClassName = useMemo(() => {
+        // Mobile: full-screen drawer (overlay, no border)
+        // Desktop: sidebar drawer
+        return [
+            'flex h-full w-full flex-col border-border bg-background',
+            'inset-0 w-screen max-w-none border-0',
+            'sm:inset-y-0 sm:right-0 sm:left-auto sm:w-full sm:max-w-sm sm:border-l',
+        ].join(' ');
+    }, []);
 
     const fetchCart = useCallback(async () => {
         setLoading(true);
         try {
             const res = await fetch('/cart', {
                 credentials: 'same-origin',
-                headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
             });
             if (res.ok) {
-                const data = (await res.json()) as { items: CartItem[]; total: number };
+                const data = (await res.json()) as {
+                    items: CartItem[];
+                    total: number;
+                };
                 setItems(data.items ?? []);
                 setTotal(data.total ?? 0);
             }
@@ -59,10 +92,14 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                 prev
                     .map((i) =>
                         i.id === productId
-                            ? { ...i, quantity, line_total: Number(i.price) * quantity }
-                            : i
+                            ? {
+                                  ...i,
+                                  quantity,
+                                  line_total: Number(i.price) * quantity,
+                              }
+                            : i,
                     )
-                    .filter((i) => i.quantity > 0)
+                    .filter((i) => i.quantity > 0),
             );
             setTotal((prevTotal) => {
                 const item = items.find((i) => i.id === productId);
@@ -71,31 +108,96 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                 return Math.max(0, prevTotal + diff);
             });
         },
-        [setQuantity, items]
+        [setQuantity, items],
     );
+
+    const handleClearCart = useCallback(async () => {
+        if (items.length === 0) return;
+        setClearing(true);
+        try {
+            const csrf =
+                (
+                    document.querySelector(
+                        'meta[name="csrf-token"]',
+                    ) as HTMLMetaElement | null
+                )?.content ?? '';
+            const formData = new FormData();
+            formData.append('_token', csrf);
+
+            const res = await fetch('/cart/clear', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            if (res.ok) {
+                const data = (await res.json()) as {
+                    cart?: {
+                        count: number;
+                        items: Record<string, { quantity: number }>;
+                    };
+                };
+                if (data.cart) {
+                    setFromServer(data.cart.count, data.cart.items);
+                }
+            }
+
+            setItems([]);
+            setTotal(0);
+        } finally {
+            setClearing(false);
+        }
+    }, [items.length, setFromServer]);
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent
                 side="right"
-                showOverlay={false}
-                className="flex h-full w-full flex-col border-l border-border bg-background sm:max-w-sm"
+                showOverlay={!isDesktop}
+                className={sheetClassName}
             >
-                <SheetHeader className="shrink-0 border-b border-border py-4">
-                    <SheetTitle className="text-lg font-semibold">Your cart</SheetTitle>
+                {/* Reserve space on the right for the Sheet close (X) button */}
+                <SheetHeader className="shrink-0 border-b border-border py-4 pr-14 sm:pr-16">
+                    <div className="flex items-center justify-between gap-3">
+                        <SheetTitle className="text-lg font-semibold">
+                            Your cart
+                        </SheetTitle>
+                        {items.length > 0 && (
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                onClick={handleClearCart}
+                                disabled={clearing || loading}
+                                className="gap-2"
+                                title="Clear cart"
+                            >
+                                <Trash2 className="size-4" aria-hidden />
+                                Clear
+                            </Button>
+                        )}
+                    </div>
                 </SheetHeader>
                 <div className="min-h-0 flex-1 overflow-y-auto py-4">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-12">
                             <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                            <p className="mt-3 text-sm text-muted-foreground">Loading…</p>
+                            <p className="mt-3 text-sm text-muted-foreground">
+                                Loading…
+                            </p>
                         </div>
                     ) : items.length === 0 ? (
                         <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
                             <div className="flex size-14 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                                 <Package className="size-7" aria-hidden />
                             </div>
-                            <p className="mt-4 font-medium text-foreground">Cart is empty</p>
+                            <p className="mt-4 font-medium text-foreground">
+                                Cart is empty
+                            </p>
                             <p className="mt-1 text-sm text-muted-foreground">
                                 Add rice from the shop to continue.
                             </p>
@@ -105,7 +207,9 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                                 onClick={() => onOpenChange(false)}
                                 asChild
                             >
-                                <Link href={productsIndex.url()}>Browse rice</Link>
+                                <Link href={productsIndex.url()}>
+                                    Browse rice
+                                </Link>
                             </Button>
                         </div>
                     ) : (
@@ -133,7 +237,14 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                                             {item.name}
                                         </p>
                                         <p className="text-xs text-muted-foreground">
-                                            ৳{Number(item.price).toLocaleString()} × {item.quantity}
+                                            ৳
+                                            {Number(
+                                                item.price,
+                                            ).toLocaleString()}{' '}
+                                            × {item.quantity}
+                                        </p>
+                                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                                            In stock: {item.stock}
                                         </p>
                                         <div className="mt-2 flex items-center gap-1">
                                             <Button
@@ -143,24 +254,40 @@ export default function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                                                 onClick={() =>
                                                     handleSetQuantity(
                                                         item.id,
-                                                        Math.max(item.quantity - 1, 0)
+                                                        Math.max(
+                                                            item.quantity - 1,
+                                                            0,
+                                                        ),
                                                     )
                                                 }
                                             >
-                                                <Minus className="size-3" aria-hidden />
+                                                <Minus
+                                                    className="size-3"
+                                                    aria-hidden
+                                                />
                                             </Button>
-                                            <span className="min-w-[1.25rem] text-center text-sm font-medium">
+                                            <span className="min-w-5 text-center text-sm font-medium">
                                                 {item.quantity}
                                             </span>
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
                                                 className="size-7"
+                                                disabled={
+                                                    item.stock != null &&
+                                                    item.quantity >= item.stock
+                                                }
                                                 onClick={() =>
-                                                    handleSetQuantity(item.id, item.quantity + 1)
+                                                    handleSetQuantity(
+                                                        item.id,
+                                                        item.quantity + 1,
+                                                    )
                                                 }
                                             >
-                                                <Plus className="size-3" aria-hidden />
+                                                <Plus
+                                                    className="size-3"
+                                                    aria-hidden
+                                                />
                                             </Button>
                                         </div>
                                     </div>

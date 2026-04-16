@@ -1,8 +1,12 @@
-import { Head, router, usePage } from '@inertiajs/react';
-import { Smartphone } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Home, Shield, Smartphone } from 'lucide-react';
 import { useState } from 'react';
-import { BrandLogoPlate, brandLogoImageClass } from '@/components/app-logo-icon';
+import {
+    BrandLogoPlate,
+    brandLogoImageClass,
+} from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
+import { home } from '@/routes';
 import type { SharedData } from '@/types';
 
 export default function PhoneLogin() {
@@ -13,7 +17,9 @@ export default function PhoneLogin() {
     const [message, setMessage] = useState('');
 
     const getCsrfToken = () => {
-        const meta = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null;
+        const meta = document.querySelector(
+            'meta[name="csrf-token"]',
+        ) as HTMLMetaElement | null;
         return meta?.content ?? '';
     };
 
@@ -23,7 +29,9 @@ export default function PhoneLogin() {
         setMessage('');
 
         if (!/^01[3-9]\d{8}$/.test(phone)) {
-            setError('Please enter a valid Bangladesh mobile number (01XXXXXXXXX)');
+            setError(
+                'Please enter a valid Bangladesh mobile number (01XXXXXXXXX)',
+            );
             return;
         }
 
@@ -75,16 +83,25 @@ export default function PhoneLogin() {
 
     return (
         <>
-            <Head title="Login / Register — E-Chal" />
+            <Head title="Login — E-Chal" />
             <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
                 <div className="w-full max-w-md space-y-8 rounded-xl border border-border bg-card p-8 shadow-sm">
                     <div className="text-center">
-                        <BrandLogoPlate rounded="full" className="mx-auto size-16">
-                            <img src="/logo.png" alt="" className={brandLogoImageClass} />
+                        <BrandLogoPlate
+                            rounded="full"
+                            className="mx-auto size-16"
+                        >
+                            <img
+                                src="/logo.png"
+                                alt=""
+                                className={brandLogoImageClass}
+                            />
                         </BrandLogoPlate>
-                        <h1 className="mt-4 text-2xl font-semibold text-foreground">E-Chal</h1>
+                        <h1 className="mt-4 text-2xl font-semibold text-foreground">
+                            E-Chal
+                        </h1>
                         <p className="mt-2 text-sm text-muted-foreground">
-                            Enter your phone number to login or register
+                            Just enter your number — no need to register.
                         </p>
                     </div>
 
@@ -102,23 +119,29 @@ export default function PhoneLogin() {
 
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div>
-                            <label htmlFor="phone" className="mb-1 block text-sm font-medium text-foreground">
+                            <label
+                                htmlFor="phone"
+                                className="mb-1 block text-sm font-medium text-foreground"
+                            >
                                 Phone number
                             </label>
                             <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                                <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
                                     +88
                                 </span>
-                                <Smartphone className="absolute left-12 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                                <Smartphone className="absolute top-1/2 left-12 size-4 -translate-y-1/2 text-muted-foreground" />
                                 <input
                                     id="phone"
                                     type="tel"
                                     inputMode="numeric"
-                                    className="w-full rounded-lg border border-input bg-background py-2 pl-16 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full rounded-lg border border-input bg-background py-2 pr-4 pl-16 text-sm outline-none focus:ring-2 focus:ring-primary"
                                     placeholder="01XXXXXXXXX"
                                     value={phone}
                                     onChange={(e) => {
-                                        const val = e.target.value.replace(/\D/g, '');
+                                        const val = e.target.value.replace(
+                                            /\D/g,
+                                            '',
+                                        );
                                         if (val.length <= 11) setPhone(val);
                                     }}
                                     required
@@ -127,17 +150,55 @@ export default function PhoneLogin() {
                                 />
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
-                                We&apos;ll log you in as +88{phone || '01XXXXXXXXX'}
+                                We&apos;ll log you in as +88
+                                {phone || '01XXXXXXXXX'}
                             </p>
                         </div>
 
-                        <Button type="submit" className="w-full" disabled={loading}>
+                        <Button
+                            type="submit"
+                            className="w-full"
+                            disabled={loading}
+                        >
                             {loading ? 'Signing in...' : 'Continue'}
                         </Button>
                     </form>
 
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div className="h-px flex-1 bg-border" />
+                            <div className="text-xs font-medium text-muted-foreground">
+                                Quick links
+                            </div>
+                            <div className="h-px flex-1 bg-border" />
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <Button asChild variant="outline" className="justify-start">
+                                <Link href={home()}>
+                                    <Home className="size-4" />
+                                    Home
+                                </Link>
+                            </Button>
+
+                            <Button
+                                asChild
+                                variant="secondary"
+                                className="justify-start"
+                            >
+                                <Link href="/admin/login">
+                                    <Shield className="size-4" />
+                                    Admin login
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
+
                     <div className="pt-4 text-center text-xs text-muted-foreground">
-                        <p>New users are registered automatically. No password or OTP required.</p>
+                        <p>
+                            New users are registered automatically. No password
+                            or OTP required.
+                        </p>
                     </div>
                 </div>
             </div>

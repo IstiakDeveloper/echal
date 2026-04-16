@@ -46,6 +46,20 @@ class AccountingService
         );
     }
 
+    public function recordSaleIfMissing(Order $order): AccountingTransaction
+    {
+        $existing = AccountingTransaction::query()
+            ->where('reference_type', 'order')
+            ->where('reference_id', $order->id)
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        return $this->recordSale($order);
+    }
+
     /**
      * Record expense: Debit Operating Expense, Credit Cash.
      */

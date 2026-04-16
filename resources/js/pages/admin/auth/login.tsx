@@ -1,6 +1,9 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Home, LogIn } from 'lucide-react';
-import { BrandLogoPlate, brandLogoImageClass } from '@/components/app-logo-icon';
+import {
+    BrandLogoPlate,
+    brandLogoImageClass,
+} from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
 import { home } from '@/routes';
 
@@ -22,7 +25,7 @@ export default function AdminLogin() {
             <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
                 <div className="w-full max-w-md">
                     <Link
-                        href={home()}
+                        href={home.url()}
                         className="mb-6 flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                     >
                         <Home className="size-4" aria-hidden />
@@ -31,17 +34,26 @@ export default function AdminLogin() {
                     <div className="mb-8 text-center">
                         <div className="mb-6 flex justify-center">
                             <BrandLogoPlate className="mx-auto h-[4.75rem] w-full max-w-[240px] px-2 py-1">
-                                <img src="/logo.png" alt="" className={brandLogoImageClass} />
+                                <img
+                                    src="/logo.png"
+                                    alt=""
+                                    className={brandLogoImageClass}
+                                />
                             </BrandLogoPlate>
                         </div>
                         <h1 className="text-3xl font-bold">Admin Login</h1>
-                        <p className="mt-2 text-muted-foreground">Sign in to access the admin panel</p>
+                        <p className="mt-2 text-muted-foreground">
+                            Sign in to access the admin panel
+                        </p>
                     </div>
 
                     <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label htmlFor="email" className="mb-1 block text-sm font-medium">
+                                <label
+                                    htmlFor="email"
+                                    className="mb-1 block text-sm font-medium"
+                                >
                                     Email
                                 </label>
                                 <input
@@ -49,17 +61,24 @@ export default function AdminLogin() {
                                     type="email"
                                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                                     value={form.data.email}
-                                    onChange={(e) => form.setData('email', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('email', e.target.value)
+                                    }
                                     required
                                     autoFocus
                                 />
                                 {form.errors.email && (
-                                    <p className="mt-1 text-xs text-destructive">{form.errors.email}</p>
+                                    <p className="mt-1 text-xs text-destructive">
+                                        {form.errors.email}
+                                    </p>
                                 )}
                             </div>
 
                             <div>
-                                <label htmlFor="password" className="mb-1 block text-sm font-medium">
+                                <label
+                                    htmlFor="password"
+                                    className="mb-1 block text-sm font-medium"
+                                >
                                     Password
                                 </label>
                                 <input
@@ -67,11 +86,15 @@ export default function AdminLogin() {
                                     type="password"
                                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                                     value={form.data.password}
-                                    onChange={(e) => form.setData('password', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('password', e.target.value)
+                                    }
                                     required
                                 />
                                 {form.errors.password && (
-                                    <p className="mt-1 text-xs text-destructive">{form.errors.password}</p>
+                                    <p className="mt-1 text-xs text-destructive">
+                                        {form.errors.password}
+                                    </p>
                                 )}
                             </div>
 
@@ -81,14 +104,26 @@ export default function AdminLogin() {
                                     type="checkbox"
                                     className="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-primary/20"
                                     checked={form.data.remember}
-                                    onChange={(e) => form.setData('remember', e.target.checked)}
+                                    onChange={(e) =>
+                                        form.setData(
+                                            'remember',
+                                            e.target.checked,
+                                        )
+                                    }
                                 />
-                                <label htmlFor="remember" className="ml-2 text-sm text-muted-foreground">
+                                <label
+                                    htmlFor="remember"
+                                    className="ml-2 text-sm text-muted-foreground"
+                                >
                                     Remember me
                                 </label>
                             </div>
 
-                            <Button type="submit" className="w-full" disabled={form.processing}>
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={form.processing}
+                            >
                                 <LogIn className="mr-2 size-4" />
                                 {form.processing ? 'Signing in...' : 'Sign in'}
                             </Button>

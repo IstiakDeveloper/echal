@@ -34,8 +34,12 @@ export default function ProductShow({ product }: ProductShowProps) {
                                 </Button>
                             </Link>
                             <div>
-                                <h1 className="text-3xl font-bold">{product.name}</h1>
-                                <p className="mt-1 text-muted-foreground">{product.slug}</p>
+                                <h1 className="text-3xl font-bold">
+                                    {product.name}
+                                </h1>
+                                <p className="mt-1 text-muted-foreground">
+                                    {product.slug}
+                                </p>
                             </div>
                         </div>
                         <Link href={`/admin/products/${product.id}/edit`}>
@@ -49,24 +53,43 @@ export default function ProductShow({ product }: ProductShowProps) {
                     <div className="grid gap-6 lg:grid-cols-2">
                         <div className="space-y-4">
                             {product.image && (
-                                <img src={product.image} alt={product.name} className="w-full rounded-lg" />
+                                <img
+                                    src={product.image}
+                                    alt={product.name}
+                                    className="w-full rounded-lg"
+                                />
                             )}
                         </div>
                         <div className="space-y-4">
                             <div>
-                                <label className="text-sm text-muted-foreground">Category</label>
-                                <p className="font-medium">{product.category?.name || '—'}</p>
+                                <label className="text-sm text-muted-foreground">
+                                    Category
+                                </label>
+                                <p className="font-medium">
+                                    {product.category?.name || '—'}
+                                </p>
                             </div>
                             <div>
-                                <label className="text-sm text-muted-foreground">Price</label>
-                                <p className="text-2xl font-bold">৳{parseFloat(product.price).toLocaleString()}</p>
+                                <label className="text-sm text-muted-foreground">
+                                    Price
+                                </label>
+                                <p className="text-2xl font-bold">
+                                    ৳
+                                    {parseFloat(product.price).toLocaleString()}
+                                </p>
                             </div>
                             <div>
-                                <label className="text-sm text-muted-foreground">Stock</label>
-                                <p className="font-medium">{product.stock ?? '—'}</p>
+                                <label className="text-sm text-muted-foreground">
+                                    Stock
+                                </label>
+                                <p className="font-medium">
+                                    {product.stock ?? '—'}
+                                </p>
                             </div>
                             <div>
-                                <label className="text-sm text-muted-foreground">Status</label>
+                                <label className="text-sm text-muted-foreground">
+                                    Status
+                                </label>
                                 <span
                                     className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
                                         product.is_active
@@ -79,8 +102,12 @@ export default function ProductShow({ product }: ProductShowProps) {
                             </div>
                             {product.description && (
                                 <div>
-                                    <label className="text-sm text-muted-foreground">Description</label>
-                                    <p className="mt-1">{product.description}</p>
+                                    <label className="text-sm text-muted-foreground">
+                                        Description
+                                    </label>
+                                    <p className="mt-1">
+                                        {product.description}
+                                    </p>
                                 </div>
                             )}
                         </div>

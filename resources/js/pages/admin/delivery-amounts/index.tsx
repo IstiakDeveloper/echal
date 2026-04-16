@@ -1,5 +1,5 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import bangladeshAddresses from '@/data/bangladeshAddresses.json';
@@ -25,10 +25,13 @@ type DeliveryAmountsIndexProps = {
 
 export default function DeliveryAmountsIndex({
     deliveryAmounts,
-    divisions,
     filters,
 }: DeliveryAmountsIndexProps) {
-    const { divisions: allDivisions, districtsByDivision, upazilasByDistrict } = bangladeshAddresses as {
+    const {
+        divisions: allDivisions,
+        districtsByDivision,
+        upazilasByDistrict,
+    } = bangladeshAddresses as {
         divisions: string[];
         districtsByDivision: Record<string, string[]>;
         upazilasByDistrict: Record<string, string[]>;
@@ -46,8 +49,12 @@ export default function DeliveryAmountsIndex({
     const [selectedDistrict, setSelectedDistrict] = useState<string>('');
 
     const divisionOptions = allDivisions;
-    const districtOptions = selectedDivision ? districtsByDivision[selectedDivision] ?? [] : [];
-    const upazilaOptions = selectedDistrict ? upazilasByDistrict[selectedDistrict] ?? [] : [];
+    const districtOptions = selectedDivision
+        ? (districtsByDivision[selectedDivision] ?? [])
+        : [];
+    const upazilaOptions = selectedDistrict
+        ? (upazilasByDistrict[selectedDistrict] ?? [])
+        : [];
 
     const handleDivisionChange = (value: string) => {
         setSelectedDivision(value);
@@ -89,22 +96,34 @@ export default function DeliveryAmountsIndex({
                 <div className="space-y-6">
                     <div>
                         <h1 className="text-3xl font-bold">Delivery Amounts</h1>
-                        <p className="mt-1 text-muted-foreground">Manage delivery charges by location</p>
+                        <p className="mt-1 text-muted-foreground">
+                            Manage delivery charges by location
+                        </p>
                     </div>
 
                     {/* Add New */}
                     <div className="rounded-lg border border-border bg-card p-6">
-                        <h2 className="mb-2 text-lg font-semibold">Add Delivery Amount</h2>
+                        <h2 className="mb-2 text-lg font-semibold">
+                            Add Delivery Amount
+                        </h2>
                         <p className="mb-4 text-xs text-muted-foreground">
-                            Division-only = full division, District-only = full district, Upazila = specific upazila.
+                            Division-only = full division, District-only = full
+                            district, Upazila = specific upazila.
                         </p>
-                        <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-5">
+                        <form
+                            onSubmit={handleSubmit}
+                            className="grid gap-4 md:grid-cols-5"
+                        >
                             <div>
-                                <label className="mb-1 block text-sm font-medium">Division *</label>
+                                <label className="mb-1 block text-sm font-medium">
+                                    Division *
+                                </label>
                                 <select
                                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                                     value={selectedDivision}
-                                    onChange={(e) => handleDivisionChange(e.target.value)}
+                                    onChange={(e) =>
+                                        handleDivisionChange(e.target.value)
+                                    }
                                     required
                                 >
                                     <option value="">Select division</option>
@@ -116,15 +135,21 @@ export default function DeliveryAmountsIndex({
                                 </select>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium">District (optional)</label>
+                                <label className="mb-1 block text-sm font-medium">
+                                    District (optional)
+                                </label>
                                 <select
                                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                                     value={selectedDistrict}
-                                    onChange={(e) => handleDistrictChange(e.target.value)}
+                                    onChange={(e) =>
+                                        handleDistrictChange(e.target.value)
+                                    }
                                     disabled={!selectedDivision}
                                 >
                                     <option value="">
-                                        {selectedDivision ? 'All districts in division' : 'Select division first'}
+                                        {selectedDivision
+                                            ? 'All districts in division'
+                                            : 'Select division first'}
                                     </option>
                                     {districtOptions.map((dist) => (
                                         <option key={dist} value={dist}>
@@ -134,15 +159,21 @@ export default function DeliveryAmountsIndex({
                                 </select>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium">Upazila (optional)</label>
+                                <label className="mb-1 block text-sm font-medium">
+                                    Upazila (optional)
+                                </label>
                                 <select
                                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                                     value={form.data.upazila}
-                                    onChange={(e) => handleUpazilaChange(e.target.value)}
+                                    onChange={(e) =>
+                                        handleUpazilaChange(e.target.value)
+                                    }
                                     disabled={!selectedDistrict}
                                 >
                                     <option value="">
-                                        {selectedDistrict ? 'All upazilas in district' : 'Select district first'}
+                                        {selectedDistrict
+                                            ? 'All upazilas in district'
+                                            : 'Select district first'}
                                     </option>
                                     {upazilaOptions.map((upa) => (
                                         <option key={upa} value={upa}>
@@ -152,19 +183,27 @@ export default function DeliveryAmountsIndex({
                                 </select>
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium">Amount (৳) *</label>
+                                <label className="mb-1 block text-sm font-medium">
+                                    Amount (৳) *
+                                </label>
                                 <input
                                     type="number"
                                     step="0.01"
                                     min="0"
                                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                                     value={form.data.amount}
-                                    onChange={(e) => form.setData('amount', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('amount', e.target.value)
+                                    }
                                     required
                                 />
                             </div>
                             <div className="flex items-end">
-                                <Button type="submit" disabled={form.processing} className="w-full">
+                                <Button
+                                    type="submit"
+                                    disabled={form.processing}
+                                    className="w-full"
+                                >
                                     <Plus className="mr-2 size-4" />
                                     Add
                                 </Button>
@@ -197,29 +236,56 @@ export default function DeliveryAmountsIndex({
                             <table className="w-full">
                                 <thead className="border-b border-border bg-muted/50">
                                     <tr>
-                                        <th className="px-4 py-3 text-left text-sm font-medium">Division</th>
-                                        <th className="px-4 py-3 text-left text-sm font-medium">District</th>
-                                        <th className="px-4 py-3 text-left text-sm font-medium">Upazila</th>
-                                        <th className="px-4 py-3 text-left text-sm font-medium">Amount</th>
-                                        <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-                                        <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">
+                                            Division
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">
+                                            District
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">
+                                            Upazila
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">
+                                            Amount
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">
+                                            Status
+                                        </th>
+                                        <th className="px-4 py-3 text-right text-sm font-medium">
+                                            Actions
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {deliveryAmounts.data.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                                            <td
+                                                colSpan={6}
+                                                className="px-4 py-8 text-center text-muted-foreground"
+                                            >
                                                 No delivery amounts found
                                             </td>
                                         </tr>
                                     ) : (
                                         deliveryAmounts.data.map((da) => (
-                                            <tr key={da.id} className="border-b border-border">
-                                                <td className="px-4 py-3 font-medium">{da.division}</td>
-                                                <td className="px-4 py-3 text-sm">{da.district || '—'}</td>
-                                                <td className="px-4 py-3 text-sm">{da.upazila || '—'}</td>
+                                            <tr
+                                                key={da.id}
+                                                className="border-b border-border"
+                                            >
                                                 <td className="px-4 py-3 font-medium">
-                                                    ৳{parseFloat(da.amount).toLocaleString()}
+                                                    {da.division}
+                                                </td>
+                                                <td className="px-4 py-3 text-sm">
+                                                    {da.district || '—'}
+                                                </td>
+                                                <td className="px-4 py-3 text-sm">
+                                                    {da.upazila || '—'}
+                                                </td>
+                                                <td className="px-4 py-3 font-medium">
+                                                    ৳
+                                                    {parseFloat(
+                                                        da.amount,
+                                                    ).toLocaleString()}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <span
@@ -229,7 +295,9 @@ export default function DeliveryAmountsIndex({
                                                                 : 'bg-gray-100 text-gray-800'
                                                         }`}
                                                     >
-                                                        {da.is_active ? 'Active' : 'Inactive'}
+                                                        {da.is_active
+                                                            ? 'Active'
+                                                            : 'Inactive'}
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-3">
@@ -237,7 +305,11 @@ export default function DeliveryAmountsIndex({
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            onClick={() => handleDelete(da.id)}
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    da.id,
+                                                                )
+                                                            }
                                                         >
                                                             <Trash2 className="size-4 text-destructive" />
                                                         </Button>

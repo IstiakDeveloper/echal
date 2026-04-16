@@ -41,7 +41,9 @@ export default function Profile({ user }: ProfileProps) {
                                 Back to orders
                             </Link>
                         </div>
-                        <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">My Profile</h1>
+                        <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">
+                            My Profile
+                        </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
                             Manage your account information
                         </p>
@@ -51,15 +53,21 @@ export default function Profile({ user }: ProfileProps) {
                     <div className="space-y-6 rounded-xl border border-border bg-card p-6 shadow-sm">
                         {/* Account Info */}
                         <div>
-                            <h2 className="mb-4 text-lg font-semibold text-foreground">Account Information</h2>
+                            <h2 className="mb-4 text-lg font-semibold text-foreground">
+                                Account Information
+                            </h2>
                             <div className="space-y-4">
                                 <div className="flex items-start gap-3">
                                     <div className="rounded-lg bg-primary/10 p-2">
                                         <User className="size-5 text-primary" />
                                     </div>
                                     <div className="flex-1">
-                                        <label className="text-xs font-medium text-muted-foreground">Name</label>
-                                        <p className="mt-1 text-sm font-medium text-foreground">{user.name}</p>
+                                        <label className="text-xs font-medium text-muted-foreground">
+                                            Name
+                                        </label>
+                                        <p className="mt-1 text-sm font-medium text-foreground">
+                                            {user.name}
+                                        </p>
                                     </div>
                                 </div>
 
@@ -69,7 +77,9 @@ export default function Profile({ user }: ProfileProps) {
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
-                                            <label className="text-xs font-medium text-muted-foreground">Phone</label>
+                                            <label className="text-xs font-medium text-muted-foreground">
+                                                Phone
+                                            </label>
                                             {user.phone_verified_at && (
                                                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
                                                     <CheckCircle2 className="size-3" />
@@ -78,7 +88,9 @@ export default function Profile({ user }: ProfileProps) {
                                             )}
                                         </div>
                                         <p className="mt-1 text-sm font-medium text-foreground">
-                                            {user.phone ? `+88${user.phone}` : 'Not set'}
+                                            {user.phone
+                                                ? `+88${user.phone}`
+                                                : 'Not set'}
                                         </p>
                                     </div>
                                 </div>
@@ -88,10 +100,15 @@ export default function Profile({ user }: ProfileProps) {
                                         <Mail className="size-5 text-blue-600" />
                                     </div>
                                     <div className="flex-1">
-                                        <label className="text-xs font-medium text-muted-foreground">Email</label>
-                                        <p className="mt-1 text-sm font-medium text-foreground">{user.email}</p>
+                                        <label className="text-xs font-medium text-muted-foreground">
+                                            Email
+                                        </label>
+                                        <p className="mt-1 text-sm font-medium text-foreground">
+                                            {user.email}
+                                        </p>
                                         <p className="mt-1 text-xs text-muted-foreground">
-                                            Auto-generated for account management
+                                            Auto-generated for account
+                                            management
                                         </p>
                                     </div>
                                 </div>
@@ -100,10 +117,15 @@ export default function Profile({ user }: ProfileProps) {
 
                         {/* Update Name Form */}
                         <div className="border-t border-border pt-6">
-                            <h2 className="mb-4 text-lg font-semibold text-foreground">Update Name</h2>
+                            <h2 className="mb-4 text-lg font-semibold text-foreground">
+                                Update Name
+                            </h2>
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
-                                    <label htmlFor="name" className="mb-1 block text-sm font-medium text-foreground">
+                                    <label
+                                        htmlFor="name"
+                                        className="mb-1 block text-sm font-medium text-foreground"
+                                    >
                                         Full Name
                                     </label>
                                     <input
@@ -111,17 +133,26 @@ export default function Profile({ user }: ProfileProps) {
                                         type="text"
                                         className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
                                         value={form.data.name}
-                                        onChange={(e) => form.setData('name', e.target.value)}
+                                        onChange={(e) =>
+                                            form.setData('name', e.target.value)
+                                        }
                                         required
                                     />
                                     {form.errors.name && (
-                                        <p className="mt-1 text-xs text-destructive">{form.errors.name}</p>
+                                        <p className="mt-1 text-xs text-destructive">
+                                            {form.errors.name}
+                                        </p>
                                     )}
                                 </div>
 
                                 <div className="flex gap-3">
-                                    <Button type="submit" disabled={form.processing}>
-                                        {form.processing ? 'Saving...' : 'Save Changes'}
+                                    <Button
+                                        type="submit"
+                                        disabled={form.processing}
+                                    >
+                                        {form.processing
+                                            ? 'Saving...'
+                                            : 'Save Changes'}
                                     </Button>
                                     <Link href={dashboard.url()}>
                                         <Button type="button" variant="outline">
@@ -134,15 +165,23 @@ export default function Profile({ user }: ProfileProps) {
 
                         {/* Quick Actions */}
                         <div className="border-t border-border pt-6">
-                            <h2 className="mb-4 text-lg font-semibold text-foreground">Quick Actions</h2>
+                            <h2 className="mb-4 text-lg font-semibold text-foreground">
+                                Quick Actions
+                            </h2>
                             <div className="flex flex-col gap-2 sm:flex-row">
-                                <Link href={homeRoute()} className="flex-1">
-                                    <Button variant="outline" className="w-full">
+                                <Link href={homeRoute.url()} className="flex-1">
+                                    <Button
+                                        variant="outline"
+                                        className="w-full"
+                                    >
                                         Continue Shopping
                                     </Button>
                                 </Link>
                                 <Link href={dashboard.url()} className="flex-1">
-                                    <Button variant="outline" className="w-full">
+                                    <Button
+                                        variant="outline"
+                                        className="w-full"
+                                    >
                                         View Orders
                                     </Button>
                                 </Link>

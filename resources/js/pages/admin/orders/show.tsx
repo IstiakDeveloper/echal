@@ -18,6 +18,7 @@ type Order = {
     total: string;
     subtotal: string;
     delivery_amount: string;
+    discount: string;
     created_at: string;
     user: { name: string; email: string; phone: string | null } | null;
     phone: string;
@@ -36,6 +37,7 @@ export default function OrderShow({ order }: OrderShowProps) {
     const form = useForm({
         status: order.status,
     });
+    const isLocked = order.status === 'delivered';
 
     const handleStatusUpdate = (e: React.FormEvent) => {
         e.preventDefault();
@@ -54,10 +56,22 @@ export default function OrderShow({ order }: OrderShowProps) {
                                 Back
                             </Button>
                         </Link>
+                        <Link href={`/admin/orders/${order.id}/receipt`}>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                className="cursor-pointer"
+                            >
+                                Print receipt
+                            </Button>
+                        </Link>
                         <div>
-                            <h1 className="text-3xl font-bold">Order #{order.id}</h1>
+                            <h1 className="text-3xl font-bold">
+                                Order #{order.id}
+                            </h1>
                             <p className="mt-1 text-muted-foreground">
-                                Placed on {new Date(order.created_at).toLocaleString()}
+                                Placed on{' '}
+                                {new Date(order.created_at).toLocaleString()}
                             </p>
                         </div>
                     </div>
@@ -65,61 +79,105 @@ export default function OrderShow({ order }: OrderShowProps) {
                     <div className="grid gap-6 lg:grid-cols-2">
                         <div className="space-y-6">
                             <div className="rounded-lg border border-border bg-card p-6">
-                                <h2 className="mb-4 text-lg font-semibold">Customer Information</h2>
+                                <h2 className="mb-4 text-lg font-semibold">
+                                    Customer Information
+                                </h2>
                                 <div className="space-y-2 text-sm">
                                     <div>
-                                        <span className="text-muted-foreground">Name:</span>{' '}
+                                        <span className="text-muted-foreground">
+                                            Name:
+                                        </span>{' '}
                                         <span className="font-medium">
                                             {order.user?.name || 'Guest'}
                                         </span>
                                     </div>
                                     <div>
-                                        <span className="text-muted-foreground">Email:</span>{' '}
+                                        <span className="text-muted-foreground">
+                                            Email:
+                                        </span>{' '}
                                         <span className="font-medium">
                                             {order.user?.email || 'N/A'}
                                         </span>
                                     </div>
                                     <div>
-                                        <span className="text-muted-foreground">Phone:</span>{' '}
-                                        <span className="font-medium">{order.phone}</span>
+                                        <span className="text-muted-foreground">
+                                            Phone:
+                                        </span>{' '}
+                                        <span className="font-medium">
+                                            {order.phone}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="rounded-lg border border-border bg-card p-6">
-                                <h2 className="mb-4 text-lg font-semibold">Delivery Address</h2>
+                                <h2 className="mb-4 text-lg font-semibold">
+                                    Delivery Address
+                                </h2>
                                 <div className="space-y-1 text-sm">
-                                    <p className="font-medium">{order.address}</p>
+                                    <p className="font-medium">
+                                        {order.address}
+                                    </p>
                                     <p className="text-muted-foreground">
-                                        {order.upazila}, {order.district}, {order.division}
+                                        {order.upazila}, {order.district},{' '}
+                                        {order.division}
                                     </p>
                                 </div>
                             </div>
 
                             <div className="rounded-lg border border-border bg-card p-6">
-                                <h2 className="mb-4 text-lg font-semibold">Update Status</h2>
-                                <form onSubmit={handleStatusUpdate} className="space-y-4">
+                                <h2 className="mb-4 text-lg font-semibold">
+                                    Update Status
+                                </h2>
+                                <form
+                                    onSubmit={handleStatusUpdate}
+                                    className="space-y-4"
+                                >
                                     <select
                                         className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                                         value={form.data.status}
-                                        onChange={(e) => form.setData('status', e.target.value)}
+                                        onChange={(e) =>
+                                            form.setData(
+                                                'status',
+                                                e.target.value,
+                                            )
+                                        }
+                                        disabled={isLocked}
                                     >
                                         <option value="pending">Pending</option>
-                                        <option value="processing">Processing</option>
+                                        <option value="processing">
+                                            Processing
+                                        </option>
                                         <option value="shipped">Shipped</option>
-                                        <option value="delivered">Delivered</option>
-                                        <option value="cancelled">Cancelled</option>
+                                        <option value="delivered">
+                                            Delivered
+                                        </option>
+                                        <option value="cancelled">
+                                            Cancelled
+                                        </option>
                                     </select>
-                                    <Button type="submit" disabled={form.processing}>
-                                        {form.processing ? 'Updating...' : 'Update Status'}
+                                    <Button
+                                        type="submit"
+                                        disabled={form.processing || isLocked}
+                                    >
+                                        {form.processing
+                                            ? 'Updating...'
+                                            : 'Update Status'}
                                     </Button>
+                                    {isLocked && (
+                                        <p className="text-xs text-muted-foreground">
+                                            This order is delivered and locked.
+                                        </p>
+                                    )}
                                 </form>
                             </div>
                         </div>
 
                         <div className="space-y-6">
                             <div className="rounded-lg border border-border bg-card p-6">
-                                <h2 className="mb-4 text-lg font-semibold">Order Items</h2>
+                                <h2 className="mb-4 text-lg font-semibold">
+                                    Order Items
+                                </h2>
                                 <div className="space-y-3">
                                     {order.items.map((item) => (
                                         <div
@@ -134,13 +192,21 @@ export default function OrderShow({ order }: OrderShowProps) {
                                                 />
                                             )}
                                             <div className="flex-1">
-                                                <div className="font-medium">{item.name}</div>
+                                                <div className="font-medium">
+                                                    {item.name}
+                                                </div>
                                                 <div className="text-sm text-muted-foreground">
-                                                    Qty: {item.quantity} × ৳{parseFloat(item.price).toLocaleString()}
+                                                    Qty: {item.quantity} × ৳
+                                                    {parseFloat(
+                                                        item.price,
+                                                    ).toLocaleString()}
                                                 </div>
                                             </div>
                                             <div className="font-semibold">
-                                                ৳{parseFloat(item.line_total).toLocaleString()}
+                                                ৳
+                                                {parseFloat(
+                                                    item.line_total,
+                                                ).toLocaleString()}
                                             </div>
                                         </div>
                                     ))}
@@ -148,25 +214,53 @@ export default function OrderShow({ order }: OrderShowProps) {
                             </div>
 
                             <div className="rounded-lg border border-border bg-card p-6">
-                                <h2 className="mb-4 text-lg font-semibold">Order Summary</h2>
+                                <h2 className="mb-4 text-lg font-semibold">
+                                    Order Summary
+                                </h2>
                                 <div className="space-y-2 text-sm">
                                     <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Subtotal:</span>
+                                        <span className="text-muted-foreground">
+                                            Subtotal:
+                                        </span>
                                         <span className="font-medium">
-                                            ৳{parseFloat(order.subtotal).toLocaleString()}
+                                            ৳
+                                            {parseFloat(
+                                                order.subtotal,
+                                            ).toLocaleString()}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Delivery:</span>
+                                        <span className="text-muted-foreground">
+                                            Discount:
+                                        </span>
                                         <span className="font-medium">
-                                            ৳{parseFloat(order.delivery_amount).toLocaleString()}
+                                            ৳
+                                            {parseFloat(
+                                                order.discount ?? '0',
+                                            ).toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">
+                                            Delivery:
+                                        </span>
+                                        <span className="font-medium">
+                                            ৳
+                                            {parseFloat(
+                                                order.delivery_amount,
+                                            ).toLocaleString()}
                                         </span>
                                     </div>
                                     <div className="border-t border-border pt-2">
                                         <div className="flex justify-between">
-                                            <span className="font-semibold">Total:</span>
+                                            <span className="font-semibold">
+                                                Total:
+                                            </span>
                                             <span className="text-lg font-bold">
-                                                ৳{parseFloat(order.total).toLocaleString()}
+                                                ৳
+                                                {parseFloat(
+                                                    order.total,
+                                                ).toLocaleString()}
                                             </span>
                                         </div>
                                     </div>

@@ -10,6 +10,7 @@ type CartItem = {
     slug: string;
     price: string;
     image: string | null;
+    stock: number;
     quantity: number;
     line_total: number;
     category: {
@@ -34,7 +35,9 @@ export default function StoreCart({
             <Head title="Cart — E-Chal" />
             <StoreLayout>
                 <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-                    <h1 className="text-2xl font-bold text-foreground">Your cart</h1>
+                    <h1 className="text-2xl font-bold text-foreground">
+                        Your cart
+                    </h1>
                     <p className="mt-1 text-sm text-muted-foreground">
                         Review your selected rice before checkout.
                     </p>
@@ -44,11 +47,17 @@ export default function StoreCart({
                             <div className="mx-auto flex size-14 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                                 <Package className="size-7" aria-hidden />
                             </div>
-                            <p className="mt-4 font-semibold text-foreground">Your cart is empty</p>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                Add Miniket, Chinigura, Basmati or other rice types to continue.
+                            <p className="mt-4 font-semibold text-foreground">
+                                Your cart is empty
                             </p>
-                            <Link href="/products" className="mt-6 inline-block">
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                Add Miniket, Chinigura, Basmati or other rice
+                                types to continue.
+                            </p>
+                            <Link
+                                href="/products"
+                                className="mt-6 inline-block"
+                            >
                                 <Button>Browse rice</Button>
                             </Link>
                         </div>
@@ -77,21 +86,31 @@ export default function StoreCart({
                                             <p className="text-xs font-medium text-primary">
                                                 {item.category.name}
                                             </p>
-                                            <p className="font-semibold text-foreground">{item.name}</p>
+                                            <p className="font-semibold text-foreground">
+                                                {item.name}
+                                            </p>
                                             <p className="mt-1 text-sm text-muted-foreground">
                                                 Quantity: {item.quantity}
                                             </p>
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                In stock: {item.stock}
+                                            </p>
                                             <p className="mt-2 text-sm font-semibold text-foreground">
-                                                ৳{item.line_total.toLocaleString()}
+                                                ৳
+                                                {item.line_total.toLocaleString()}
                                             </p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                             <aside className="rounded-xl border border-border bg-card p-5">
-                                <h2 className="text-lg font-semibold text-foreground">Order summary</h2>
+                                <h2 className="text-lg font-semibold text-foreground">
+                                    Order summary
+                                </h2>
                                 <div className="mt-4 flex items-center justify-between text-sm">
-                                    <span className="text-muted-foreground">Items total</span>
+                                    <span className="text-muted-foreground">
+                                        Items total
+                                    </span>
                                     <span className="font-semibold text-foreground">
                                         ৳{total.toLocaleString()}
                                     </span>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Store\CartController;
 use App\Http\Controllers\Store\CheckoutController;
+use App\Http\Controllers\Store\OrderTrackingController;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -70,6 +71,7 @@ Route::get('products', function (Request $request) {
 
 Route::get('cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('cart', [CartController::class, 'store'])->name('cart.store');
+Route::post('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 Route::post('cart/buy-now', [CartController::class, 'buyNow'])->name('cart.buy-now');
 
 Route::get('checkout', [CheckoutController::class, 'show'])->name('checkout.show');
@@ -77,8 +79,13 @@ Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.st
 
 Route::get('checkout/complete', [CheckoutController::class, 'complete'])->name('checkout.complete');
 
+Route::get('order-tracking', [OrderTrackingController::class, 'show'])->name('order-tracking.show');
+
 // Phone-only login (no OTP)
 Route::get('login', [\App\Http\Controllers\Auth\PhoneAuthController::class, 'show'])->name('login');
+Route::get('register', function () {
+    return redirect()->route('login');
+})->name('register');
 Route::post('auth/phone/login', [\App\Http\Controllers\Auth\PhoneAuthController::class, 'login'])
     ->middleware('throttle:30,1')
     ->name('auth.phone.login');
