@@ -17,9 +17,20 @@ Route::get('/', function () {
         ->orderBy('name')
         ->get(['id', 'name', 'slug']);
 
-    $featuredProducts = Product::query()
+    $featuredProductsQuery = Product::query()
         ->with('category:id,name,slug')
         ->where('is_active', true)
+        ->where('is_featured', true);
+
+    if (! $featuredProductsQuery->exists()) {
+        $featuredProductsQuery = Product::query()
+            ->with('category:id,name,slug')
+            ->where('is_active', true);
+    }
+
+    $featuredProducts = $featuredProductsQuery
+        ->orderByRaw('(stock > 0) desc')
+        ->orderByRaw('featured_order is null asc, featured_order asc')
         ->orderBy('name')
         ->limit(8)
         ->get();

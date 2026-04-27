@@ -15,6 +15,8 @@ type Product = {
     images: string[] | null;
     stock: number | null;
     is_active: boolean;
+    is_featured: boolean;
+    featured_order: number | null;
 };
 
 type ProductEditProps = {
@@ -41,6 +43,8 @@ export default function ProductEdit({ product, categories }: ProductEditProps) {
         images_to_delete: [] as string[],
         stock: product.stock?.toString() || '',
         is_active: product.is_active,
+        is_featured: product.is_featured,
+        featured_order: product.featured_order?.toString() || '',
     });
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -428,6 +432,53 @@ export default function ProductEdit({ product, categories }: ProductEditProps) {
                                         Product is active
                                     </label>
                                 </div>
+
+                                <div className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="is_featured"
+                                        className="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-primary/20"
+                                        checked={form.data.is_featured}
+                                        onChange={(e) =>
+                                            form.setData(
+                                                'is_featured',
+                                                e.target.checked,
+                                            )
+                                        }
+                                    />
+                                    <label
+                                        htmlFor="is_featured"
+                                        className="ml-2 text-sm"
+                                    >
+                                        Show on Home (Featured)
+                                    </label>
+                                </div>
+
+                                {form.data.is_featured && (
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium">
+                                            Featured order
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                            value={form.data.featured_order}
+                                            onChange={(e) =>
+                                                form.setData(
+                                                    'featured_order',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            placeholder="0 = top"
+                                        />
+                                        {form.errors.featured_order && (
+                                            <p className="mt-1 text-xs text-destructive">
+                                                {form.errors.featured_order}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
 

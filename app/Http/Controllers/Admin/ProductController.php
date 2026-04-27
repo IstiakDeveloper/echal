@@ -265,6 +265,8 @@ class ProductController extends Controller
             'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:10240'], // 10MB max per image
             'stock' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['boolean'],
+            'is_featured' => ['boolean'],
+            'featured_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
         if (empty($validated['slug'])) {
@@ -334,6 +336,8 @@ class ProductController extends Controller
             'images_to_delete.*' => ['string'],
             'stock' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['boolean'],
+            'is_featured' => ['boolean'],
+            'featured_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
         if (empty($validated['slug'])) {

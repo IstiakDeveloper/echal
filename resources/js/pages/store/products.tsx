@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { Package, Search } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import ProductCard from '@/components/store/product-card';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/cart-context';
@@ -37,6 +37,16 @@ export default function StoreProducts({
 }) {
     const { getQuantity, addToCart, setQuantity, setFromServer } = useCart();
     const [searchTerm, setSearchTerm] = useState(search ?? '');
+
+    const sortedProducts = useMemo(() => {
+        return [...products].sort((a, b) => {
+            const aInStock = a.stock > 0;
+            const bInStock = b.stock > 0;
+
+            if (aInStock === bInStock) return 0;
+            return aInStock ? -1 : 1;
+        });
+    }, [products]);
 
     const handleBuyNow = useCallback(
         async (productId: number) => {
@@ -205,7 +215,7 @@ export default function StoreProducts({
                         </div>
                     ) : (
                         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                            {products.map((product) => (
+                            {sortedProducts.map((product) => (
                                 <ProductCard
                                     key={product.id}
                                     product={product}

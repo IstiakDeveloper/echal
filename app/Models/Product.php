@@ -26,6 +26,8 @@ class Product extends Model
         'images',
         'stock',
         'is_active',
+        'is_featured',
+        'featured_order',
     ];
 
     /**
@@ -37,6 +39,7 @@ class Product extends Model
             'price' => 'decimal:2',
             'cost_price' => 'decimal:2',
             'is_active' => 'boolean',
+            'is_featured' => 'boolean',
             'images' => 'array',
         ];
     }

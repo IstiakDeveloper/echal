@@ -1,6 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ArrowRight, ShoppingBag, UserPlus } from 'lucide-react';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
     BrandLogoPlate,
     brandLogoImageClass,
@@ -40,6 +40,16 @@ export default function StoreHome({
 }) {
     const { auth } = usePage<SharedData>().props;
     const { getQuantity, addToCart, setQuantity, setFromServer } = useCart();
+
+    const sortedFeaturedProducts = useMemo(() => {
+        return [...featuredProducts].sort((a, b) => {
+            const aInStock = a.stock > 0;
+            const bInStock = b.stock > 0;
+
+            if (aInStock === bInStock) return 0;
+            return aInStock ? -1 : 1;
+        });
+    }, [featuredProducts]);
 
     const handleBuyNow = useCallback(
         async (productId: number) => {
@@ -176,7 +186,7 @@ export default function StoreHome({
                                 <ul className="mt-8 flex flex-wrap items-center justify-center gap-3">
                                     {categories.map((cat) => {
                                         const firstProduct =
-                                            featuredProducts.find(
+                                            sortedFeaturedProducts.find(
                                                 (p) => p.category.id === cat.id,
                                             );
                                         return (
@@ -246,7 +256,7 @@ export default function StoreHome({
                                     Bestsellers and everyday favourites.
                                 </p>
                                 <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                                    {featuredProducts.map((product) => (
+                                    {sortedFeaturedProducts.map((product) => (
                                         <ProductCard
                                             key={product.id}
                                             product={product}

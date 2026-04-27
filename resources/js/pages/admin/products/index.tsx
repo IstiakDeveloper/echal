@@ -12,6 +12,7 @@ type Product = {
     image: string | null;
     stock: number;
     is_active: boolean;
+    is_featured: boolean;
     category: { name: string } | null;
 };
 
@@ -133,6 +134,9 @@ export default function ProductsIndex({
                                         <th className="px-4 py-3 text-left text-sm font-medium">
                                             Status
                                         </th>
+                                        <th className="px-4 py-3 text-left text-sm font-medium">
+                                            Featured
+                                        </th>
                                         <th className="px-4 py-3 text-right text-sm font-medium">
                                             Actions
                                         </th>
@@ -142,7 +146,7 @@ export default function ProductsIndex({
                                     {products.data.length === 0 ? (
                                         <tr>
                                             <td
-                                                colSpan={8}
+                                                colSpan={9}
                                                 className="px-4 py-8 text-center text-muted-foreground"
                                             >
                                                 No products found
@@ -265,6 +269,17 @@ export default function ProductsIndex({
                                                             ? 'Active'
                                                             : 'Inactive'}
                                                     </span>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    {product.is_featured ? (
+                                                        <span className="inline-block rounded-full bg-primary/15 px-2 py-1 text-xs font-medium text-primary">
+                                                            Featured
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-sm text-muted-foreground">
+                                                            —
+                                                        </span>
+                                                    )}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center justify-end gap-2">
