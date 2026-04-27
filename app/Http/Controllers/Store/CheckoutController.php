@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
+use App\Models\DeliveryAmount;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -128,8 +130,32 @@ class CheckoutController extends Controller
         return Inertia::render('store/checkout', [
             'items' => $items,
             'subtotal' => $subtotal,
+            'defaultDeliveryAmount' => 150,
             'locations' => $locations,
             'savedAddress' => $savedAddress,
+        ]);
+    }
+
+    public function deliveryAmount(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'division' => ['nullable', 'string', 'max:255'],
+            'district' => ['nullable', 'string', 'max:255'],
+            'upazila' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $division = (string) ($validated['division'] ?? '');
+        $district = (string) ($validated['district'] ?? '');
+        $upazila = (string) ($validated['upazila'] ?? '');
+
+        $default = 150.0;
+
+        if ($division === '' || $district === '' || $upazila === '') {
+            return response()->json(['delivery_amount' => $default]);
+        }
+
+        return response()->json([
+            'delivery_amount' => $this->deliveryAmountForLocation($division, $district, $upazila),
         ]);
     }
 
@@ -205,8 +231,11 @@ class CheckoutController extends Controller
                     fn (array $row): float => (float) $row['line_total']
                 );
 
-                // TODO: when admin UI for delivery amount is ready, compute based on division/district/upazila.
-                $deliveryAmount = 0.0;
+                $deliveryAmount = $this->deliveryAmountForLocation(
+                    division: $validated['division'],
+                    district: $validated['district'],
+                    upazila: $validated['upazila'],
+                );
                 $total = $subtotal + $deliveryAmount;
 
                 $order = Order::create([
@@ -272,5 +301,31 @@ class CheckoutController extends Controller
             'orderId' => $request->session()->get('order_id'),
             'phone' => $request->session()->get('order_phone'),
         ]);
+    }
+
+    private function deliveryAmountForLocation(string $division, string $district, string $upazila): float
+    {
+        $default = 150.0;
+
+        $candidate = DeliveryAmount::query()
+            ->where('is_active', true)
+            ->where('division', $division)
+            ->where(function ($q) use ($district) {
+                $q->whereNull('district')->orWhere('district', $district);
+            })
+            ->where(function ($q) use ($upazila) {
+                $q->whereNull('upazila')->orWhere('upazila', $upazila);
+            })
+            ->orderByRaw('case when district is null then 0 else 1 end desc')
+            ->orderByRaw('case when upazila is null then 0 else 1 end desc')
+            ->first();
+
+        if ($candidate === null) {
+            return $default;
+        }
+
+        $amount = (float) $candidate->amount;
+
+        return $amount < $default ? $amount : $default;
     }
 }

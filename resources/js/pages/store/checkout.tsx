@@ -41,11 +41,13 @@ type SavedAddress = {
 export default function StoreCheckout({
     items = [],
     subtotal = 0,
+    defaultDeliveryAmount = 150,
     locations = [],
     savedAddress = null,
 }: {
     items: CartItem[];
     subtotal: number;
+    defaultDeliveryAmount?: number;
     locations: LocationNode[];
     savedAddress?: SavedAddress;
 }) {
@@ -199,8 +201,47 @@ export default function StoreCheckout({
         }
     }, [form, locations, user, savedAddress]);
 
-    const deliveryAmount = 0;
-    const total = subtotal + deliveryAmount;
+    const [deliveryAmount, setDeliveryAmount] = useState<number | null>(null);
+
+    useEffect(() => {
+        const division = form.data.division;
+        const district = form.data.district;
+        const upazila = form.data.upazila;
+
+        if (!division || !district || !upazila) {
+            setDeliveryAmount(null);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        fetch(
+            `/checkout/delivery-amount?division=${encodeURIComponent(
+                division,
+            )}&district=${encodeURIComponent(district)}&upazila=${encodeURIComponent(
+                upazila,
+            )}`,
+            {
+                signal: controller.signal,
+                headers: { Accept: 'application/json' },
+            },
+        )
+            .then((res) => res.json())
+            .then((data) => {
+                const amount = Number(data?.delivery_amount);
+                setDeliveryAmount(
+                    Number.isFinite(amount) ? amount : defaultDeliveryAmount,
+                );
+            })
+            .catch(() => {
+                // ignore
+            });
+
+        return () => controller.abort();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [form.data.division, form.data.district, form.data.upazila]);
+
+    const total = subtotal + (deliveryAmount ?? 0);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -209,6 +250,14 @@ export default function StoreCheckout({
 
     const formatCurrency = (value: number | string) =>
         `৳${Number(value).toLocaleString()}`;
+
+    const formatMoneyOrPlaceholder = (value: number | null) => {
+        if (value === null) {
+            return '—';
+        }
+
+        return formatCurrency(value);
+    };
 
     return (
         <>
@@ -511,7 +560,9 @@ export default function StoreCheckout({
                                             Delivery charge
                                         </span>
                                         <span className="font-medium text-foreground">
-                                            {formatCurrency(deliveryAmount)}
+                                            {formatMoneyOrPlaceholder(
+                                                deliveryAmount,
+                                            )}
                                         </span>
                                     </div>
                                     <div className="border-t border-border pt-2.5">
@@ -520,7 +571,9 @@ export default function StoreCheckout({
                                                 Total
                                             </span>
                                             <span className="text-lg font-bold text-foreground">
-                                                {formatCurrency(total)}
+                                                {deliveryAmount === null
+                                                    ? 'Select location'
+                                                    : formatCurrency(total)}
                                             </span>
                                         </div>
                                     </div>

@@ -86,6 +86,7 @@ Route::post('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 Route::post('cart/buy-now', [CartController::class, 'buyNow'])->name('cart.buy-now');
 
 Route::get('checkout', [CheckoutController::class, 'show'])->name('checkout.show');
+Route::get('checkout/delivery-amount', [CheckoutController::class, 'deliveryAmount'])->name('checkout.delivery-amount');
 Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
 Route::get('checkout/complete', [CheckoutController::class, 'complete'])->name('checkout.complete');
